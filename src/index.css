@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Hide everything except printable area */
+  header, footer, nav, .print\:hidden {
+    display: none !important;
+  }
+
+  #printable-area {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: auto !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 1.5cm 2cm !important;
+    margin: 0 !important;
+  }
+
+  /* Ensure page breaks cleanly inside tables and blocks */
+  table {
+    page-break-inside: auto;
+  }
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+  thead {
+    display: table-header-group;
+  }
+  h1, h2, h3, h4 {
+    page-break-after: avoid;
+  }
+}

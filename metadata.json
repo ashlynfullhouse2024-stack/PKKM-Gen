@@ -1,0 +1,6 @@
+{
+  "name": "Generator Bukti Fisik PKKM 2026 AI",
+  "description": "Aplikasi AI cerdas untuk pembuatan dan pengelolaan dokumen bukti fisik Penilaian Kinerja Kepala Madrasah (PKKM) 2026 lengkap 205 item berbasis Kurikulum Berbasis Cinta (KBC).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
