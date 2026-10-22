@@ -97,22 +97,24 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({
             <div className="bg-slate-800 p-0.5 rounded-lg flex items-center text-xs font-semibold mr-1">
               <button
                 onClick={() => setActiveTab('preview')}
-                className={`px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors ${
+                className={`px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors cursor-pointer ${
                   activeTab === 'preview'
                     ? 'bg-emerald-600 text-white shadow-sm'
                     : 'text-slate-400 hover:text-white'
                 }`}
+                title="Lihat tata letak naskah resmi dalam format lembar kertas dinas A4"
               >
                 <Eye className="w-3.5 h-3.5" />
                 <span>Pratinjau Kertas</span>
               </button>
               <button
                 onClick={() => setActiveTab('edit')}
-                className={`px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors ${
+                className={`px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors cursor-pointer ${
                   activeTab === 'edit'
                     ? 'bg-emerald-600 text-white shadow-sm'
                     : 'text-slate-400 hover:text-white'
                 }`}
+                title="Buka naskah dalam mode penyunting teks untuk mengubah isi klausul atau menambahkan rincian"
               >
                 <Edit3 className="w-3.5 h-3.5" />
                 <span>Edit Teks</span>
@@ -121,8 +123,8 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({
 
             <button
               onClick={handleCopy}
-              className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-lg transition-colors flex items-center gap-1 border border-slate-700"
-              title="Salin Teks ke Clipboard"
+              className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-lg transition-colors flex items-center gap-1 border border-slate-700 cursor-pointer"
+              title="Salin seluruh isi teks naskah ke papan klip (clipboard) komputer"
             >
               {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
               <span className="hidden sm:inline">{copied ? 'Tersalin' : 'Salin'}</span>
@@ -130,8 +132,8 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({
 
             <button
               onClick={handleDownloadDoc}
-              className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 shadow-sm"
-              title="Unduh file dokumen format Microsoft Word (.doc)"
+              className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
+              title="Unduh dokumen ini ke format Microsoft Word (.doc) yang siap dibuka dan diedit di laptop"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Unduh Word (.doc)</span>
@@ -139,8 +141,8 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({
 
             <button
               onClick={handlePrint}
-              className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold rounded-lg transition-all flex items-center gap-1.5"
-              title="Cetak atau Simpan sebagai PDF"
+              className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer"
+              title="Cetak langsung naskah ini ke printer atau simpan sebagai file PDF ukuran standar A4"
             >
               <Printer className="w-3.5 h-3.5" />
               <span>Cetak / PDF</span>
@@ -148,8 +150,8 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({
 
             <button
               onClick={handleSave}
-              className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 shadow-md shadow-emerald-950/20"
-              title="Simpan dokumen ke memori browser & tandai selesai"
+              className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 shadow-md shadow-emerald-950/20 cursor-pointer"
+              title="Simpan dokumen naskah ini ke arsip lokal madrasah dan tandai instrumen sebagai Selesai"
             >
               {isSaved ? <CheckCircle2 className="w-3.5 h-3.5 text-amber-300" /> : <Save className="w-3.5 h-3.5" />}
               <span>{isSaved ? 'Tersimpan!' : 'Simpan'}</span>
@@ -157,7 +159,8 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({
 
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors ml-1"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors ml-1 cursor-pointer"
+              title="Tutup jendela pratinjau dokumen dan kembali ke dashboard"
             >
               <X className="w-5 h-5" />
             </button>

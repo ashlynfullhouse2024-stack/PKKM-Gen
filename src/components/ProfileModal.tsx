@@ -58,7 +58,8 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-emerald-200 hover:text-white hover:bg-emerald-700/50 transition-colors"
+            className="p-1.5 rounded-lg text-emerald-200 hover:text-white hover:bg-emerald-700/50 transition-colors cursor-pointer"
+            title="Tutup formulir pengaturan profil madrasah"
           >
             <X className="w-5 h-5" />
           </button>
@@ -74,6 +75,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
               type="button"
               onClick={handleLoadSamplePdf}
               className="px-3 py-1.5 bg-teal-800 hover:bg-teal-900 text-white rounded-lg text-xs font-semibold shrink-0 transition-colors shadow-xs cursor-pointer"
+              title="Isi otomatis formulir dengan data contoh madrasah acuan PKKM 2026"
             >
               Muat Contoh Data
             </button>
@@ -391,13 +393,15 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50"
+              className="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 cursor-pointer"
+              title="Batalkan perubahan dan kembali ke dashboard"
             >
               Batal
             </button>
             <button
               type="submit"
-              className="px-5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-sm font-bold flex items-center gap-2 shadow-sm transition-all"
+              className="px-5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-sm font-bold flex items-center gap-2 shadow-sm transition-all cursor-pointer"
+              title="Simpan perubahan profil madrasah, kepala madrasah, dan tim penilai"
             >
               {isSaved ? (
                 <>

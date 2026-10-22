@@ -134,7 +134,8 @@ export const BatchPackModal: React.FC<BatchPackModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-emerald-200 hover:text-white hover:bg-emerald-700/50 transition-colors"
+            className="p-1.5 rounded-lg text-emerald-200 hover:text-white hover:bg-emerald-700/50 transition-colors cursor-pointer"
+            title="Tutup jendela paket dokumen cepat"
           >
             <X className="w-5 h-5" />
           </button>
@@ -225,14 +226,16 @@ export const BatchPackModal: React.FC<BatchPackModalProps> = ({
             <button
               onClick={onClose}
               disabled={isProcessing}
-              className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800"
+              className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 cursor-pointer disabled:opacity-50"
+              title="Tutup jendela paket dokumen dan kembali ke dashboard"
             >
               Tutup
             </button>
             <button
               onClick={handleGeneratePack}
               disabled={isProcessing}
-              className="px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-lg shadow-md flex items-center gap-2 transition-all disabled:opacity-50"
+              className="px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-lg shadow-md flex items-center gap-2 transition-all disabled:opacity-50 cursor-pointer"
+              title="Generate seluruh dokumen resmi dalam paket ini secara otomatis sekaligus"
             >
               {isProcessing ? (
                 <>

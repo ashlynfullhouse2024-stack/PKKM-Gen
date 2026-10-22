@@ -15,7 +15,8 @@ import { KBCGuideModal } from './components/KBCGuideModal';
 import { SavedDocumentsDrawer } from './components/SavedDocumentsDrawer';
 import { LoginGate } from './components/LoginGate';
 import { SellerAccountsModal } from './components/SellerAccountsModal';
-import { Check, Sparkles } from 'lucide-react';
+import { UserFlowModal } from './components/UserFlowModal';
+import { Check, Sparkles, Compass } from 'lucide-react';
 
 const STORAGE_KEYS = {
   PROFILE: 'pkkm_2026_profile',
@@ -23,6 +24,8 @@ const STORAGE_KEYS = {
   SAVED_DOCS: 'pkkm_2026_saved_docs',
   FOLDER_LINKS: 'pkkm_2026_folder_links',
   ACTIVE_USER: 'pkkm_2026_active_user',
+  AUTO_SHOW_USER_FLOW: 'pkkm_2026_auto_show_flow',
+  HAS_SEEN_USER_FLOW: 'pkkm_2026_has_seen_flow',
 };
 
 export default function App() {
@@ -100,6 +103,24 @@ export default function App() {
   const [isKBCGuideOpen, setIsKBCGuideOpen] = useState(false);
   const [isBatchOpen, setIsBatchOpen] = useState(false);
   const [isSellerModalOpen, setIsSellerModalOpen] = useState(false);
+  const [autoShowUserFlow, setAutoShowUserFlow] = useState<boolean>(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.AUTO_SHOW_USER_FLOW);
+      return stored === null ? true : stored === 'true';
+    } catch {
+      return true;
+    }
+  });
+  const [isUserFlowOpen, setIsUserFlowOpen] = useState<boolean>(() => {
+    try {
+      const auto = localStorage.getItem(STORAGE_KEYS.AUTO_SHOW_USER_FLOW);
+      const seen = localStorage.getItem(STORAGE_KEYS.HAS_SEEN_USER_FLOW);
+      if (auto === 'false') return false;
+      return !seen;
+    } catch {
+      return false;
+    }
+  });
 
   // 7. Active Generator & Viewer Items
   const [generatorItem, setGeneratorItem] = useState<PKKMItem | null>(null);
@@ -203,7 +224,28 @@ export default function App() {
         namaMadrasah: user.namaMadrasah,
       }));
     }
+    if (autoShowUserFlow) {
+      setIsUserFlowOpen(true);
+    }
     showToast(`Selamat datang, ${user.namaLengkap}!`);
+  };
+
+  const handleToggleAutoShowFlow = (enabled: boolean) => {
+    setAutoShowUserFlow(enabled);
+    try {
+      localStorage.setItem(STORAGE_KEYS.AUTO_SHOW_USER_FLOW, String(enabled));
+    } catch (e) {
+      console.warn('LocalStorage save auto show flow failed:', e);
+    }
+  };
+
+  const handleCloseUserFlow = () => {
+    setIsUserFlowOpen(false);
+    try {
+      localStorage.setItem(STORAGE_KEYS.HAS_SEEN_USER_FLOW, 'true');
+    } catch (e) {
+      console.warn('LocalStorage save has seen flow failed:', e);
+    }
   };
 
   const handleLogout = () => {
@@ -363,6 +405,7 @@ export default function App() {
         onOpenKBCGuide={() => setIsKBCGuideOpen(true)}
         onOpenBatch={() => setIsBatchOpen(true)}
         onOpenSellerAccounts={() => setIsSellerModalOpen(true)}
+        onOpenUserFlow={() => setIsUserFlowOpen(true)}
         onLogout={handleLogout}
       />
 
@@ -389,8 +432,17 @@ export default function App() {
 
           <div className="flex items-center gap-2 self-start md:self-center">
             <button
+              onClick={() => setIsUserFlowOpen(true)}
+              className="px-3.5 py-2 bg-teal-900/80 hover:bg-teal-800 text-teal-200 font-semibold text-xs rounded-xl border border-teal-700/60 transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+              title="Buka petunjuk langkah demi langkah cara menggunakan aplikasi dari awal hingga selesai"
+            >
+              <Compass className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
+              <span>Alur Penggunaan</span>
+            </button>
+            <button
               onClick={() => setIsBatchOpen(true)}
               className="px-4 py-2 bg-teal-700 hover:bg-teal-600 text-white font-semibold text-xs rounded-xl shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+              title="Buat paket dokumen wajib sekaligus dalam 1 kali klik (Paket SK Pokok, Paket KBC, dll)"
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-300" />
               <span>Paket Cepat</span>
@@ -398,6 +450,7 @@ export default function App() {
             <button
               onClick={() => setIsKBCGuideOpen(true)}
               className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium text-xs rounded-xl border border-slate-700 transition-colors cursor-pointer"
+              title="Buka panduan materi Kurikulum Berbasis Cinta, Panca Cinta, Deep Learning & 7 KAIH"
             >
               Panduan KBC
             </button>
@@ -535,6 +588,27 @@ export default function App() {
           showToast('Seluruh arsip berhasil dikosongkan.');
         }}
       />
+
+      {/* 8. User Flow / Onboarding Guide Modal */}
+      <UserFlowModal
+        isOpen={isUserFlowOpen}
+        onClose={handleCloseUserFlow}
+        onOpenProfile={() => setIsProfileOpen(true)}
+        onOpenGDrive={() => setIsGDriveOpen(true)}
+        onOpenBatch={() => setIsBatchOpen(true)}
+        autoShowOnStart={autoShowUserFlow}
+        onToggleAutoShow={handleToggleAutoShowFlow}
+      />
+
+      {/* Floating Quick Helper Button for Workflow Guide */}
+      <button
+        onClick={() => setIsUserFlowOpen(true)}
+        className="fixed bottom-6 left-6 z-40 bg-slate-900/90 hover:bg-slate-900 text-white px-3.5 py-2.5 rounded-full shadow-xl border border-slate-700 flex items-center gap-2 text-xs font-bold transition-all hover:scale-105 cursor-pointer print:hidden backdrop-blur-md"
+        title="Buka petunjuk langkah demi langkah alur penggunaan aplikasi PKKM 2026"
+      >
+        <Compass className="w-4 h-4 text-teal-300" />
+        <span className="hidden sm:inline">Petunjuk Alur</span>
+      </button>
     </div>
   );
 }

@@ -58,7 +58,8 @@ export const SavedDocumentsDrawer: React.FC<SavedDocumentsDrawerProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-emerald-200 hover:text-white hover:bg-emerald-700 transition-colors"
+            className="p-1 rounded-lg text-emerald-200 hover:text-white hover:bg-emerald-700 transition-colors cursor-pointer"
+            title="Tutup laci arsip dokumen"
           >
             <X className="w-5 h-5" />
           </button>
@@ -74,6 +75,7 @@ export const SavedDocumentsDrawer: React.FC<SavedDocumentsDrawerProps> = ({
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-8 pr-3 py-1.5 text-xs border rounded-lg bg-white focus:ring-1 focus:ring-emerald-500"
+              title="Cari naskah yang telah tersimpan berdasarkan judul atau nomor item"
             />
           </div>
           {savedDocs.length > 0 && (
@@ -83,7 +85,8 @@ export const SavedDocumentsDrawer: React.FC<SavedDocumentsDrawerProps> = ({
                   onClearAll();
                 }
               }}
-              className="text-[11px] text-red-600 hover:text-red-800 font-semibold px-2 py-1 hover:bg-red-50 rounded"
+              className="text-[11px] text-red-600 hover:text-red-800 font-semibold px-2 py-1 hover:bg-red-50 rounded cursor-pointer"
+              title="Hapus seluruh dokumen dari arsip lokal penyimpanan"
             >
               Hapus Semua
             </button>
@@ -131,7 +134,8 @@ export const SavedDocumentsDrawer: React.FC<SavedDocumentsDrawerProps> = ({
                   <div className="flex items-center justify-between pt-1 border-t border-slate-100">
                     <button
                       onClick={() => onViewDoc(doc)}
-                      className="text-xs font-semibold text-emerald-700 hover:text-emerald-900 flex items-center gap-1"
+                      className="text-xs font-semibold text-emerald-700 hover:text-emerald-900 flex items-center gap-1 cursor-pointer"
+                      title="Buka dokumen ini dalam format lembar dinas A4 untuk dicetak atau diedit"
                     >
                       <Eye className="w-3.5 h-3.5" />
                       <span>Buka & Cetak</span>
@@ -146,15 +150,15 @@ export const SavedDocumentsDrawer: React.FC<SavedDocumentsDrawerProps> = ({
                             html
                           )
                         }
-                        className="p-1 text-blue-600 hover:bg-blue-50 rounded"
-                        title="Unduh format Word"
+                        className="p-1 text-blue-600 hover:bg-blue-50 rounded cursor-pointer"
+                        title="Unduh dokumen arsip ini ke format Microsoft Word (.doc)"
                       >
                         <Download className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => onDeleteDoc(doc.id)}
-                        className="p-1 text-red-500 hover:bg-red-50 rounded"
-                        title="Hapus dari arsip"
+                        className="p-1 text-red-500 hover:bg-red-50 rounded cursor-pointer"
+                        title="Hapus naskah dokumen ini dari arsip"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>

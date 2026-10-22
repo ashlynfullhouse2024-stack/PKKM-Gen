@@ -109,7 +109,8 @@ export const LoginGate: React.FC<LoginGateProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600"
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
+                  title={showPassword ? 'Sembunyikan karakter password' : 'Tampilkan karakter password'}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -119,6 +120,7 @@ export const LoginGate: React.FC<LoginGateProps> = ({
             <button
               type="submit"
               className="w-full py-2.5 px-4 bg-teal-800 hover:bg-teal-900 text-white font-bold text-xs sm:text-sm rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer mt-2"
+              title="Masuk ke aplikasi dan buka seluruh akses generator bukti fisik PKKM 2026"
             >
               <span>Buka Akses PKKM</span>
               <ArrowRight className="w-4 h-4" />

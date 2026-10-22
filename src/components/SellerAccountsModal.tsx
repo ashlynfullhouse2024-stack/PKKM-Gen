@@ -90,7 +90,8 @@ export const SellerAccountsModal: React.FC<SellerAccountsModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+            title="Tutup panel lisensi penjual"
           >
             <X className="w-5 h-5" />
           </button>
@@ -110,6 +111,7 @@ export const SellerAccountsModal: React.FC<SellerAccountsModalProps> = ({
             <button
               onClick={() => setIsAdding(!isAdding)}
               className="px-3.5 py-2 bg-teal-800 hover:bg-teal-900 text-white rounded-lg text-xs font-semibold shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
+              title="Buka atau tutup formulir untuk membuat username dan password lisensi baru"
             >
               <UserPlus className="w-4 h-4" />
               <span>{isAdding ? 'Tutup Form' : 'Tambah Akun Lisensi Baru'}</span>
@@ -241,6 +243,7 @@ export const SellerAccountsModal: React.FC<SellerAccountsModalProps> = ({
                           onClose();
                         }}
                         className="px-2.5 py-1 text-[11px] font-semibold text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-200 rounded-lg flex items-center gap-1 transition-colors cursor-pointer"
+                        title="Masuk langsung ke aplikasi menggunakan akun pembeli ini untuk pengujian"
                       >
                         <LogIn className="w-3.5 h-3.5" />
                         <span>Coba Login</span>
@@ -250,7 +253,7 @@ export const SellerAccountsModal: React.FC<SellerAccountsModalProps> = ({
                         <button
                           onClick={() => onDeleteAccount(acc.id)}
                           className="p-1 text-slate-400 hover:text-red-500 rounded cursor-pointer"
-                          title="Hapus akun"
+                          title="Hapus akun lisensi ini dari daftar"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -276,6 +279,7 @@ export const SellerAccountsModal: React.FC<SellerAccountsModalProps> = ({
           <button
             onClick={onClose}
             className="px-4 py-1.5 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-semibold transition-colors cursor-pointer"
+            title="Tutup panel rahasia penjual"
           >
             Tutup
           </button>

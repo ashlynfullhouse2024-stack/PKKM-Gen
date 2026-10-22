@@ -285,6 +285,7 @@ export const DocumentGeneratorModal: React.FC<DocumentGeneratorModalProps> = ({
             onClick={() => handleGenerate(false)}
             disabled={isGenerating}
             className="w-full sm:w-auto px-4 py-2 border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+            title="Buat naskah dokumen seketika menggunakan draf template baku resmi Kemenag"
           >
             <FileText className="w-3.5 h-3.5 text-slate-500" />
             <span>Gunakan Template Cepat (Instan)</span>
@@ -295,7 +296,8 @@ export const DocumentGeneratorModal: React.FC<DocumentGeneratorModalProps> = ({
               type="button"
               onClick={onClose}
               disabled={isGenerating}
-              className="px-4 py-2 text-xs font-medium text-slate-600 hover:text-slate-800 disabled:opacity-50"
+              className="px-4 py-2 text-xs font-medium text-slate-600 hover:text-slate-800 disabled:opacity-50 cursor-pointer"
+              title="Batalkan proses pembuatan dokumen"
             >
               Batal
             </button>
@@ -304,6 +306,7 @@ export const DocumentGeneratorModal: React.FC<DocumentGeneratorModalProps> = ({
               onClick={() => handleGenerate(true)}
               disabled={isGenerating}
               className="w-full sm:w-auto px-5 py-2.5 bg-teal-800 hover:bg-teal-900 text-white text-xs font-bold rounded-lg shadow-xs transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+              title="Mulai membuat naskah dokumen resmi lengkap dengan bantuan kecerdasan buatan Gemini AI"
             >
               <Sparkles className="w-4 h-4 text-amber-300" />
               <span>Generate dengan Gemini AI</span>

@@ -85,7 +85,8 @@ export const GDriveMatrixModal: React.FC<GDriveMatrixModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-emerald-200 hover:text-white hover:bg-emerald-700/50 transition-colors"
+            className="p-1.5 rounded-lg text-emerald-200 hover:text-white hover:bg-emerald-700/50 transition-colors cursor-pointer"
+            title="Tutup jendela manajemen folder Google Drive"
           >
             <X className="w-5 h-5" />
           </button>
@@ -101,7 +102,8 @@ export const GDriveMatrixModal: React.FC<GDriveMatrixModalProps> = ({
           </div>
           <button
             onClick={handleCopySummary}
-            className="px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-md font-bold text-xs flex items-center gap-1.5 transition-colors shadow-sm"
+            className="px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-md font-bold text-xs flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
+            title="Salin rekapitulasi 20 folder tautan Google Drive ke clipboard untuk dikirim ke Tim Asesor"
           >
             {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
             <span>{copied ? 'Tersalin!' : 'Salin Rekap Link untuk Pengawas'}</span>

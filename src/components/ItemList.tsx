@@ -101,7 +101,8 @@ export const ItemList: React.FC<ItemListProps> = ({
             {searchTerm && (
               <button
                 onClick={() => setSearchTerm('')}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600 font-medium"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600 font-medium cursor-pointer"
+                title="Hapus kata kunci pencarian dan tampilkan semua bukti fisik"
               >
                 Reset
               </button>
@@ -114,7 +115,8 @@ export const ItemList: React.FC<ItemListProps> = ({
             <select
               value={selectedFolder}
               onChange={(e) => setSelectedFolder(e.target.value)}
-              className="px-3 py-2 text-xs border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-teal-700 font-medium text-slate-700"
+              className="px-3 py-2 text-xs border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-teal-700 font-medium text-slate-700 cursor-pointer"
+              title="Filter dokumen berdasarkan 20 sub-folder penilaian (A1 s.d E4)"
             >
               <option value="ALL">Semua Folder (A1 - E4)</option>
               {PKKM_FOLDERS.map((f) => (
@@ -128,7 +130,8 @@ export const ItemList: React.FC<ItemListProps> = ({
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-3 py-2 text-xs border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-teal-700 font-medium text-slate-700"
+              className="px-3 py-2 text-xs border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-teal-700 font-medium text-slate-700 cursor-pointer"
+              title="Filter dokumen berdasarkan jenis naskah (SK, SOP, Modul Ajar, Laporan, Notulen, dll)"
             >
               <option value="ALL">Semua Kategori</option>
               {categories.map((c) => (
@@ -142,7 +145,8 @@ export const ItemList: React.FC<ItemListProps> = ({
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="px-3 py-2 text-xs border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-teal-700 font-medium text-slate-700"
+              className="px-3 py-2 text-xs border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-teal-700 font-medium text-slate-700 cursor-pointer"
+              title="Filter dokumen berdasarkan status pengerjaan (Sudah Selesai atau Belum Dibuat)"
             >
               <option value="ALL">Semua Status</option>
               <option value="selesai">Sudah Selesai</option>
@@ -157,6 +161,7 @@ export const ItemList: React.FC<ItemListProps> = ({
                   ? 'bg-purple-50 border-purple-300 text-purple-800'
                   : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50'
               }`}
+              title="Saring hanya dokumen yang memuat materi Kurikulum Berbasis Cinta (KBC), Panca Cinta & Deep Learning"
             >
               <HeartHandshake className={`w-3.5 h-3.5 ${onlyKbc ? 'text-purple-600' : 'text-slate-400'}`} />
               <span>Insersi KBC</span>
@@ -166,19 +171,19 @@ export const ItemList: React.FC<ItemListProps> = ({
             <div className="bg-slate-100 p-1 rounded-xl flex items-center gap-1 border border-slate-200">
               <button
                 onClick={() => setViewMode('list')}
-                className={`p-1.5 rounded-lg transition-colors ${
+                className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                   viewMode === 'list' ? 'bg-white text-slate-800 shadow-xs' : 'text-slate-400 hover:text-slate-600'
                 }`}
-                title="Tampilan Tabel / Baris"
+                title="Beralih ke tampilan tabel daftar baris (List View)"
               >
                 <LayoutList className="w-3.5 h-3.5" />
               </button>
               <button
                 onClick={() => setViewMode('grid')}
-                className={`p-1.5 rounded-lg transition-colors ${
+                className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                   viewMode === 'grid' ? 'bg-white text-slate-800 shadow-xs' : 'text-slate-400 hover:text-slate-600'
                 }`}
-                title="Tampilan Kartu Kotak"
+                title="Beralih ke tampilan kartu kotak (Grid View)"
               >
                 <LayoutGrid className="w-3.5 h-3.5" />
               </button>
@@ -200,7 +205,8 @@ export const ItemList: React.FC<ItemListProps> = ({
                 setSelectedStatus('ALL');
                 setOnlyKbc(false);
               }}
-              className="text-teal-700 hover:text-teal-900 font-medium hover:underline"
+              className="text-teal-700 hover:text-teal-900 font-medium hover:underline cursor-pointer"
+              title="Reset dan kembalikan semua filter ke kondisi semula"
             >
               Hapus Semua Filter
             </button>
@@ -232,7 +238,7 @@ export const ItemList: React.FC<ItemListProps> = ({
                   <button
                     onClick={() => onToggleStatus(item.id)}
                     className="mt-1 text-slate-300 hover:text-teal-700 transition-colors shrink-0 cursor-pointer"
-                    title={item.status === 'selesai' ? 'Tandai belum' : 'Tandai selesai'}
+                    title={item.status === 'selesai' ? 'Klik untuk membatalkan tanda selesai' : 'Klik untuk menandai dokumen ini sudah selesai'}
                   >
                     {item.status === 'selesai' ? (
                       <CheckCircle2 className="w-5 h-5 text-teal-600 fill-teal-50" />
@@ -244,17 +250,29 @@ export const ItemList: React.FC<ItemListProps> = ({
                   {/* Badges & Content */}
                   <div className="space-y-1 flex-1">
                     <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
-                      <span className="bg-slate-800 text-white font-mono font-bold px-2 py-0.5 rounded text-[10px]">
+                      <span 
+                        className="bg-slate-800 text-white font-mono font-bold px-2 py-0.5 rounded text-[10px]"
+                        title={`Nomor Urut Dokumen PKKM #${item.id} dari 205 total instrumen`}
+                      >
                         #{item.id}
                       </span>
-                      <span className="bg-slate-100 text-slate-700 font-medium px-2 py-0.5 rounded">
+                      <span 
+                        className="bg-slate-100 text-slate-700 font-medium px-2 py-0.5 rounded"
+                        title={`Kategori Sub-Folder: ${item.folderName}`}
+                      >
                         {item.folderName}
                       </span>
-                      <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded">
+                      <span 
+                        className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded"
+                        title={`Format Dokumen Fisik: ${item.category}`}
+                      >
                         {item.category}
                       </span>
                       {item.kbcTag && (
-                        <span className="bg-purple-50 text-purple-700 font-semibold px-2 py-0.5 rounded-full flex items-center gap-1 text-[10px] border border-purple-200/60">
+                        <span 
+                          className="bg-purple-50 text-purple-700 font-semibold px-2 py-0.5 rounded-full flex items-center gap-1 text-[10px] border border-purple-200/60"
+                          title="Dokumen ini terintegrasi dengan Kurikulum Berbasis Cinta (KBC) dan Deep Learning"
+                        >
                           <HeartHandshake className="w-3 h-3 text-purple-600" />
                           Insersi KBC
                         </span>
@@ -278,14 +296,15 @@ export const ItemList: React.FC<ItemListProps> = ({
                         value={item.gdriveUrl || ''}
                         onChange={(e) => onUpdateDriveUrl(item.id, e.target.value)}
                         className="flex-1 px-2.5 py-1 text-[11px] border border-slate-200 rounded-lg bg-slate-50/60 hover:bg-white focus:bg-white focus:ring-1 focus:ring-teal-700 font-mono"
+                        title="Ketik atau tempel link Google Drive dokumen bukti fisik ini untuk rekapan Tim Asesor"
                       />
                       {item.gdriveUrl && (
                         <a
                           href={item.gdriveUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="p-1 text-teal-700 hover:text-teal-900"
-                          title="Buka Link di Google Drive"
+                          className="p-1 text-teal-700 hover:text-teal-900 cursor-pointer"
+                          title="Buka file/folder dokumen ini di Google Drive pada tab baru"
                         >
                           <ExternalLink className="w-3.5 h-3.5" />
                         </a>
@@ -299,7 +318,7 @@ export const ItemList: React.FC<ItemListProps> = ({
                   <button
                     onClick={() => onInstantGenerate(item)}
                     className="px-3 py-1.5 border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
-                    title="Buat dokumen cepat dengan template standar resmi"
+                    title="Buat dokumen cepat dan instan menggunakan naskah template standar resmi Kemenag"
                   >
                     <FileText className="w-3.5 h-3.5 text-slate-500" />
                     <span>Template</span>
@@ -308,7 +327,7 @@ export const ItemList: React.FC<ItemListProps> = ({
                   <button
                     onClick={() => onOpenGenerator(item)}
                     className="px-3.5 py-1.5 bg-teal-800 hover:bg-teal-900 text-white text-xs font-bold rounded-lg shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
-                    title="Generate dokumen dengan Gemini 3.8 Flash AI"
+                    title="Generate naskah dokumen lengkap dan detail menggunakan kecerdasan buatan Gemini AI"
                   >
                     <Sparkles className="w-3.5 h-3.5 text-amber-300" />
                     <span>Generate AI</span>
@@ -333,16 +352,23 @@ export const ItemList: React.FC<ItemListProps> = ({
               <div>
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <div className="flex items-center gap-1.5">
-                    <span className="bg-slate-800 text-white font-mono font-bold px-1.5 py-0.5 rounded text-[10px]">
+                    <span 
+                      className="bg-slate-800 text-white font-mono font-bold px-1.5 py-0.5 rounded text-[10px]"
+                      title={`Instrumen PKKM #${item.id}`}
+                    >
                       #{item.id}
                     </span>
-                    <span className="bg-slate-100 text-slate-700 font-medium px-2 py-0.5 rounded text-[10px]">
+                    <span 
+                      className="bg-slate-100 text-slate-700 font-medium px-2 py-0.5 rounded text-[10px]"
+                      title={`Sub-folder: ${item.folderId}`}
+                    >
                       {item.folderId}
                     </span>
                   </div>
                   <button
                     onClick={() => onToggleStatus(item.id)}
                     className="text-slate-300 hover:text-teal-700 cursor-pointer"
+                    title={item.status === 'selesai' ? 'Klik untuk membatalkan tanda selesai' : 'Klik untuk menandai dokumen ini selesai'}
                   >
                     {item.status === 'selesai' ? (
                       <CheckCircle2 className="w-4 h-4 text-teal-600 fill-teal-50" />
@@ -361,7 +387,10 @@ export const ItemList: React.FC<ItemListProps> = ({
 
                 {item.kbcTag && (
                   <div className="mt-2">
-                    <span className="bg-purple-50 text-purple-700 font-semibold px-2 py-0.5 rounded-full inline-flex items-center gap-1 text-[10px] border border-purple-200/60">
+                    <span 
+                      className="bg-purple-50 text-purple-700 font-semibold px-2 py-0.5 rounded-full inline-flex items-center gap-1 text-[10px] border border-purple-200/60"
+                      title="Dokumen ini bermuatan Kurikulum Berbasis Cinta (KBC)"
+                    >
                       <HeartHandshake className="w-3 h-3 text-purple-600" />
                       Insersi KBC
                     </span>
@@ -379,13 +408,15 @@ export const ItemList: React.FC<ItemListProps> = ({
                     value={item.gdriveUrl || ''}
                     onChange={(e) => onUpdateDriveUrl(item.id, e.target.value)}
                     className="w-full px-2 py-1 text-[10px] border border-slate-200 rounded-md bg-slate-50 focus:bg-white font-mono"
+                    title="Ketik atau tempel tautan Google Drive dokumen ini"
                   />
                   {item.gdriveUrl && (
                     <a
                       href={item.gdriveUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-1 text-teal-700"
+                      className="p-1 text-teal-700 cursor-pointer"
+                      title="Buka berkas di Google Drive pada tab baru"
                     >
                       <ExternalLink className="w-3 h-3" />
                     </a>
@@ -396,6 +427,7 @@ export const ItemList: React.FC<ItemListProps> = ({
                   <button
                     onClick={() => onInstantGenerate(item)}
                     className="py-1.5 border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-1 cursor-pointer"
+                    title="Buat dokumen cepat seketika menggunakan draf template resmi Kemenag"
                   >
                     <FileText className="w-3 h-3 text-slate-400" />
                     <span>Template</span>
@@ -403,9 +435,10 @@ export const ItemList: React.FC<ItemListProps> = ({
                   <button
                     onClick={() => onOpenGenerator(item)}
                     className="py-1.5 bg-teal-800 hover:bg-teal-900 text-white text-xs font-bold rounded-lg shadow-xs flex items-center justify-center gap-1 transition-all cursor-pointer"
+                    title="Generate naskah dokumen lengkap dengan bantuan Gemini AI"
                   >
                     <Sparkles className="w-3 h-3 text-amber-300" />
-                    <span>Generate</span>
+                    <span>Generate AI</span>
                   </button>
                 </div>
               </div>
