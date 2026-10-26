@@ -42,7 +42,7 @@ export const SellerAccountsModal: React.FC<SellerAccountsModalProps> = ({
   if (!isOpen) return null;
 
   const handleCopyAccount = (acc: UserAccount) => {
-    const text = `Akses Login Aplikasi Bukti Fisik PKKM 2026 AI (lynk.id):\nUsername: ${acc.username}\nPassword: ${acc.password}\nStatus: Aktif Penuh (205 Instrumen Fisik + AI Gemini)\nWebsite: https://ais-pre-cpk2arqkt4mcg4gth7b4xj-499090783603.asia-east1.run.app`;
+    const text = `Akses Login Aplikasi Bukti Fisik PKKM 2026 AI (lynk.id):\nUsername: ${acc.username}\nPassword: ${acc.password}\nStatus: Aktif Penuh (205 Instrumen Bukti Fisik + Generator AI & Template)\nWebsite: ${window.location.origin}\n\nDisclaimer: Aplikasi pendamping digital independen berbasis referensi instrumen PKKM Kementerian Agama RI.`;
     navigator.clipboard.writeText(text);
     setCopiedId(acc.id);
     setTimeout(() => setCopiedId(null), 2000);

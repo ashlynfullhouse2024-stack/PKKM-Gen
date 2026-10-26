@@ -16,6 +16,7 @@ import { SavedDocumentsDrawer } from './components/SavedDocumentsDrawer';
 import { LoginGate } from './components/LoginGate';
 import { SellerAccountsModal } from './components/SellerAccountsModal';
 import { UserFlowModal } from './components/UserFlowModal';
+import { BackupRestoreModal } from './components/BackupRestoreModal';
 import { Check, Sparkles, Compass } from 'lucide-react';
 
 const STORAGE_KEYS = {
@@ -103,6 +104,7 @@ export default function App() {
   const [isKBCGuideOpen, setIsKBCGuideOpen] = useState(false);
   const [isBatchOpen, setIsBatchOpen] = useState(false);
   const [isSellerModalOpen, setIsSellerModalOpen] = useState(false);
+  const [isBackupOpen, setIsBackupOpen] = useState(false);
   const [autoShowUserFlow, setAutoShowUserFlow] = useState<boolean>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.AUTO_SHOW_USER_FLOW);
@@ -215,8 +217,11 @@ export default function App() {
   }, [items]);
 
   // Handlers for Authentication
-  const handleLogin = (user: UserAccount) => {
+  const handleLogin = (user: UserAccount, token?: string) => {
     setCurrentUser(user);
+    if (token) {
+      localStorage.setItem('pkkm_session_token', token);
+    }
     // If user has specific madrasah, sync to profile
     if (user.namaMadrasah && user.namaMadrasah !== 'Pusat Distribusi Lisensi PKKM') {
       setProfile((prev) => ({
@@ -228,6 +233,21 @@ export default function App() {
       setIsUserFlowOpen(true);
     }
     showToast(`Selamat datang, ${user.namaLengkap}!`);
+  };
+
+  const handleRestoreBackup = (data: {
+    profile?: MadrasahProfile;
+    items?: PKKMItem[];
+    folderLinks?: Record<string, string>;
+    savedDocs?: GeneratedDocument[];
+  }) => {
+    if (data.profile) setProfile(data.profile);
+    if (data.items && Array.isArray(data.items) && data.items.length === 205) {
+      setItems(data.items);
+    }
+    if (data.folderLinks) setFolderLinks(data.folderLinks);
+    if (data.savedDocs && Array.isArray(data.savedDocs)) setSavedDocs(data.savedDocs);
+    showToast('Data madrasah & instrumen berhasil dipulihkan!');
   };
 
   const handleToggleAutoShowFlow = (enabled: boolean) => {
@@ -385,11 +405,11 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100/90 text-slate-800 flex flex-col selection:bg-teal-100 selection:text-teal-900 font-sans">
+    <div className="min-h-screen bg-gradient-to-br from-rose-50/40 via-pink-50/30 to-purple-50/30 text-slate-800 flex flex-col selection:bg-pink-100 selection:text-rose-900 font-sans">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-lg border border-slate-700 flex items-center gap-2.5 text-xs font-semibold animate-in fade-in slide-in-from-bottom-4 duration-200">
-          <Check className="w-4 h-4 text-teal-400 shrink-0" />
+        <div className="fixed bottom-6 right-6 z-50 bg-slate-900/95 text-white px-4 py-2.5 rounded-2xl shadow-xl border border-slate-700/80 flex items-center gap-2.5 text-xs font-semibold animate-in fade-in slide-in-from-bottom-4 duration-200 backdrop-blur-md">
+          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
           <span>{toastMessage}</span>
         </div>
       )}
@@ -406,26 +426,27 @@ export default function App() {
         onOpenBatch={() => setIsBatchOpen(true)}
         onOpenSellerAccounts={() => setIsSellerModalOpen(true)}
         onOpenUserFlow={() => setIsUserFlowOpen(true)}
+        onOpenBackup={() => setIsBackupOpen(true)}
         onLogout={handleLogout}
       />
 
-      {/* Hero Sub-header */}
-      <div className="bg-slate-900 text-white py-6 px-4 sm:px-6 lg:px-8 border-b border-slate-800 print:hidden">
+      {/* Hero Sub-header - Soft Girly Pastel Theme */}
+      <div className="bg-gradient-to-r from-rose-100/70 via-pink-50/90 to-purple-100/70 py-6 px-4 sm:px-6 lg:px-8 border-b border-rose-200/60 print:hidden">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1.5">
-              <span className="bg-teal-900/90 text-teal-200 text-[10px] font-bold px-2.5 py-0.5 rounded-md border border-teal-700/60">
-                Resmi Ditjen Pendis Kemenag RI
+              <span className="bg-white/90 text-rose-700 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border border-rose-200/80 shadow-2xs">
+                Berbasis Referensi PKKM Kemenag RI
               </span>
-              <span className="text-slate-600 text-xs hidden sm:inline">•</span>
-              <span className="text-slate-300 text-xs hidden sm:inline font-medium">
+              <span className="text-pink-300 text-xs hidden sm:inline">•</span>
+              <span className="text-slate-600 text-xs hidden sm:inline font-semibold">
                 Tahun Ajaran {profile.tahunAjaran}
               </span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
               Sistem Otomatisasi Bukti Fisik PKKM 2026
             </h2>
-            <p className="text-xs sm:text-sm text-slate-300 max-w-2xl mt-1 leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-600 max-w-2xl mt-1 leading-relaxed">
               Buat dokumen administrasi PKKM lengkap 205 instrumen secara otomatis berbasis AI Gemini dan Kurikulum Berbasis Cinta (KBC). Siap ekspor format Word (.doc) dan cetak A4.
             </p>
           </div>
@@ -433,23 +454,23 @@ export default function App() {
           <div className="flex items-center gap-2 self-start md:self-center">
             <button
               onClick={() => setIsUserFlowOpen(true)}
-              className="px-3.5 py-2 bg-teal-900/80 hover:bg-teal-800 text-teal-200 font-semibold text-xs rounded-xl border border-teal-700/60 transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+              className="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer hover:scale-102"
               title="Buka petunjuk langkah demi langkah cara menggunakan aplikasi dari awal hingga selesai"
             >
-              <Compass className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
+              <Compass className="w-3.5 h-3.5 text-amber-200" />
               <span>Alur Penggunaan</span>
             </button>
             <button
               onClick={() => setIsBatchOpen(true)}
-              className="px-4 py-2 bg-teal-700 hover:bg-teal-600 text-white font-semibold text-xs rounded-xl shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+              className="px-4 py-2 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer hover:scale-102"
               title="Buat paket dokumen wajib sekaligus dalam 1 kali klik (Paket SK Pokok, Paket KBC, dll)"
             >
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+              <Sparkles className="w-3.5 h-3.5 text-amber-200" />
               <span>Paket Cepat</span>
             </button>
             <button
               onClick={() => setIsKBCGuideOpen(true)}
-              className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium text-xs rounded-xl border border-slate-700 transition-colors cursor-pointer"
+              className="px-3 py-2 bg-white/90 hover:bg-white text-slate-700 hover:text-indigo-700 font-semibold text-xs rounded-xl border border-pink-200/90 shadow-2xs transition-colors cursor-pointer"
               title="Buka panduan materi Kurikulum Berbasis Cinta, Panca Cinta, Deep Learning & 7 KAIH"
             >
               Panduan KBC
@@ -481,20 +502,25 @@ export default function App() {
         />
       </main>
 
-      {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 py-6 px-4 text-center text-xs text-slate-500 print:hidden mt-8">
+      {/* Footer with Legal Disclaimer */}
+      <footer className="bg-white/80 backdrop-blur-sm border-t border-rose-100 py-6 px-4 text-center text-xs text-slate-500 print:hidden mt-8 space-y-3">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md bg-teal-800 text-amber-300 flex items-center justify-center font-bold text-[10px]">
+            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-rose-400 to-pink-500 text-white flex items-center justify-center font-bold text-[10px] shadow-2xs">
               K
             </div>
             <span className="font-semibold text-slate-700">
               Sistem Bukti Fisik PKKM 2026 AI • Kurikulum Berbasis Cinta
             </span>
           </div>
-          <p className="text-slate-400">
-            Disesuaikan dengan format SK, SOP, Modul Ajar KBC, dan Tata Naskah Dinas Kementerian Agama RI
+          <p className="text-slate-500 text-[11px]">
+            Berbasis format pedoman SK, SOP, Modul Ajar KBC, dan Tata Naskah Dinas Kementerian Agama RI
           </p>
+        </div>
+
+        {/* Clear Legal Disclaimer Box */}
+        <div className="max-w-4xl mx-auto bg-rose-50/50 border border-rose-200/60 rounded-2xl p-3 text-[11px] text-slate-500 leading-relaxed text-center">
+          <strong>Pemberitahuan Resmi / Disclaimer:</strong> Aplikasi ini merupakan perangkat bantu otomasi digital mandiri yang dikembangkan berdasarkan referensi instrumen Penilaian Kinerja Kepala Madrasah (PKKM) Kementerian Agama RI. Aplikasi ini bukan merupakan sistem atau portal resmi yang diterbitkan langsung oleh Kementerian Agama RI.
         </div>
       </footer>
 
@@ -600,13 +626,24 @@ export default function App() {
         onToggleAutoShow={handleToggleAutoShowFlow}
       />
 
-      {/* Floating Quick Helper Button for Workflow Guide */}
+      {/* 9. Backup & Restore Data Modal */}
+      <BackupRestoreModal
+        isOpen={isBackupOpen}
+        onClose={() => setIsBackupOpen(false)}
+        profile={profile}
+        items={items}
+        folderLinks={folderLinks}
+        savedDocs={savedDocs}
+        onRestoreBackup={handleRestoreBackup}
+      />
+
+      {/* Floating Quick Helper Button for Workflow Guide - Girly Soft Pastel Gradient */}
       <button
         onClick={() => setIsUserFlowOpen(true)}
-        className="fixed bottom-6 left-6 z-40 bg-slate-900/90 hover:bg-slate-900 text-white px-3.5 py-2.5 rounded-full shadow-xl border border-slate-700 flex items-center gap-2 text-xs font-bold transition-all hover:scale-105 cursor-pointer print:hidden backdrop-blur-md"
+        className="fixed bottom-6 left-6 z-40 bg-gradient-to-r from-purple-600 via-pink-500 to-rose-500 hover:from-purple-700 hover:to-rose-600 text-white px-4 py-2.5 rounded-full shadow-lg border border-white/50 flex items-center gap-2 text-xs font-bold transition-all hover:scale-105 cursor-pointer print:hidden backdrop-blur-md"
         title="Buka petunjuk langkah demi langkah alur penggunaan aplikasi PKKM 2026"
       >
-        <Compass className="w-4 h-4 text-teal-300" />
+        <Compass className="w-4 h-4 text-amber-200" />
         <span className="hidden sm:inline">Petunjuk Alur</span>
       </button>
     </div>

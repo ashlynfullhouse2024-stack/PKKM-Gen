@@ -66,7 +66,7 @@ export const UserFlowModal: React.FC<UserFlowModalProps> = ({
       step: 3,
       badge: 'Langkah Ketiga',
       title: 'Buat Dokumen Otomatis (AI Gemini / Template)',
-      desc: 'Klik tombol "Generate AI" untuk naskah cerdas berorientasi Kurikulum Berbasis Cinta (KBC), atau tombol "Template" untuk draf resmi baku Kemenag RI seketika. Tersedia juga "Paket Cepat" untuk membuat banyak SK pokok sekaligus.',
+      desc: 'Klik tombol "Generate AI" untuk naskah cerdas berorientasi Kurikulum Berbasis Cinta (KBC), atau tombol "Template" untuk draf format standar baku instrumen PKKM seketika. Tersedia juga "Paket Cepat" untuk membuat banyak SK pokok sekaligus.',
       icon: Sparkles,
       color: 'bg-amber-50 text-amber-700 border-amber-200',
       actionLabel: 'Lihat Paket Dokumen Cepat',
@@ -119,19 +119,19 @@ export const UserFlowModal: React.FC<UserFlowModalProps> = ({
         aria-labelledby="user-flow-title"
       >
         {/* Header */}
-        <div className="bg-gradient-to-r from-slate-900 via-teal-950 to-slate-900 text-white p-5 sm:p-6 shrink-0 flex items-center justify-between border-b border-slate-800">
+        <div className="bg-gradient-to-r from-rose-100 via-pink-50 to-purple-100 text-slate-800 p-5 sm:p-6 shrink-0 flex items-center justify-between border-b border-rose-200/80">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-teal-800/80 border border-teal-600/60 flex items-center justify-center text-amber-300 shrink-0">
-              <Compass className="w-6 h-6" />
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+              <Compass className="w-6 h-6 text-amber-200" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold tracking-wider bg-teal-900 text-teal-200 uppercase border border-teal-700/50">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black tracking-wider bg-rose-500 text-white uppercase shadow-2xs">
                   Panduan Pengguna
                 </span>
-                <span className="text-xs text-slate-400">• Standar PKKM 2026</span>
+                <span className="text-xs text-rose-800 font-semibold">• Standar PKKM 2026</span>
               </div>
-              <h2 id="user-flow-title" className="text-lg sm:text-xl font-bold text-white mt-0.5">
+              <h2 id="user-flow-title" className="text-lg sm:text-xl font-extrabold text-slate-900 mt-0.5">
                 Alur Praktis Penggunaan Aplikasi PKKM
               </h2>
             </div>
@@ -139,7 +139,7 @@ export const UserFlowModal: React.FC<UserFlowModalProps> = ({
 
           <button
             onClick={onClose}
-            className="w-9 h-9 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+            className="w-9 h-9 rounded-xl bg-white/90 hover:bg-pink-100 text-slate-500 hover:text-rose-700 flex items-center justify-center transition-colors border border-pink-200/80 cursor-pointer shadow-2xs"
             title="Tutup panduan alur penggunaan"
           >
             <X className="w-5 h-5" />
@@ -150,7 +150,7 @@ export const UserFlowModal: React.FC<UserFlowModalProps> = ({
         <div className="bg-teal-50/80 border-b border-teal-100 px-5 sm:px-6 py-3 flex items-center gap-3 text-xs text-teal-900">
           <Lightbulb className="w-4 h-4 text-teal-700 shrink-0" />
           <span>
-            Aplikasi ini dirancang khusus untuk mempermudah Bapak/Ibu Kepala Madrasah, Tim Pengembang, dan Guru dalam melengkapi <strong>205 bukti fisik PKKM Tahun 2026</strong> secara cepat, akurat, dan sesuai regulasi Ditjen Pendis Kemenag RI.
+            Aplikasi ini dirancang sebagai asisten digital independen untuk mempermudah Bapak/Ibu Kepala Madrasah, Tim Pengembang, dan Guru dalam menyusun <strong>205 kelengkapan bukti fisik berbasis referensi instrumen PKKM Kementerian Agama RI</strong> secara terstruktur dan terpadu.
           </span>
         </div>
 

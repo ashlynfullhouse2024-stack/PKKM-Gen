@@ -57,18 +57,18 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({
     };
 
     const colors: Record<ComponentId, { main: string; light: string }> = {
-      A: { main: '#059669', light: '#a7f3d0' }, // Emerald / Hijau Kemenag
-      B: { main: '#2563eb', light: '#bfdbfe' }, // Blue
-      C: { main: '#d97706', light: '#fde68a' }, // Amber / Kewirausahaan
-      D: { main: '#7c3aed', light: '#ddd6fe' }, // Purple
-      E: { main: '#db2777', light: '#fbcfe8' }, // Pink
+      A: { main: '#10b981', light: '#d1fae5' }, // Mint Kemenag
+      B: { main: '#38bdf8', light: '#e0f2fe' }, // Sky Blue
+      C: { main: '#f59e0b', light: '#fef3c7' }, // Apricot / Kewirausahaan
+      D: { main: '#a855f7', light: '#f3e8ff' }, // Lilac / Supervisi
+      E: { main: '#f43f5e', light: '#ffe4e6' }, // Rose / Prestasi
     };
 
     return PKKM_COMPONENTS.map((comp) => {
       const stats = componentStats[comp.id as ComponentId] || { total: comp.count, completed: 0 };
       const pct = Math.round((stats.completed / (stats.total || 1)) * 100);
       const remaining = Math.max(0, stats.total - stats.completed);
-      const colorSet = colors[comp.id as ComponentId] || { main: '#0d9488', light: '#ccfbf1' };
+      const colorSet = colors[comp.id as ComponentId] || { main: '#ec4899', light: '#fce7f3' };
 
       return {
         id: comp.id as ComponentId,
@@ -96,8 +96,8 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <div className="bg-white/95 backdrop-blur-md p-3.5 rounded-xl shadow-xl border border-slate-200 text-xs min-w-[220px] transition-all">
-          <div className="flex items-center justify-between gap-2 mb-1.5 pb-1 border-b border-slate-100">
+        <div className="bg-white/95 backdrop-blur-md p-3.5 rounded-2xl shadow-xl border border-pink-100 text-xs min-w-[220px] transition-all">
+          <div className="flex items-center justify-between gap-2 mb-1.5 pb-1 border-b border-pink-50">
             <div className="flex items-center gap-2">
               <span
                 className="w-2.5 h-2.5 rounded-full inline-block"
@@ -105,16 +105,16 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({
               />
               <span className="font-bold text-slate-800">KOMPONEN {data.id}</span>
             </div>
-            <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-pink-50 text-rose-700 border border-pink-100">
               {data.percentage}%
             </span>
           </div>
 
-          <p className="font-medium text-slate-700 mb-2 leading-snug">
+          <p className="font-semibold text-slate-800 mb-2 leading-snug">
             {data.name}
           </p>
 
-          <div className="space-y-1 text-[11px] bg-slate-50 p-2 rounded-lg border border-slate-100">
+          <div className="space-y-1 text-[11px] bg-pink-50/30 p-2 rounded-xl border border-pink-100/70">
             <div className="flex justify-between items-center text-slate-600">
               <span>Selesai:</span>
               <span className="font-bold text-emerald-600">{data.completed} Dokumen</span>
@@ -123,14 +123,14 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({
               <span>Belum Selesai:</span>
               <span className="font-semibold text-slate-500">{data.remaining} Dokumen</span>
             </div>
-            <div className="flex justify-between items-center text-slate-600 pt-1 border-t border-slate-200/60 font-semibold">
+            <div className="flex justify-between items-center text-slate-700 pt-1 border-t border-pink-100/80 font-bold">
               <span>Total Beban:</span>
               <span>{data.total} Dokumen</span>
             </div>
           </div>
 
-          <p className="mt-2 text-[10px] text-teal-600 font-medium text-center italic">
-            Klik batang diagram untuk memfilter daftar
+          <p className="mt-2 text-[10px] text-rose-600 font-semibold text-center italic">
+            Klik diagram untuk menyaring dokumen
           </p>
         </div>
       );
@@ -139,79 +139,79 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-xs border border-slate-200 p-5 mb-6 print:hidden font-sans">
-      {/* 4 Clean Soothing Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pb-5 border-b border-slate-100">
+    <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-sm border border-rose-100/80 p-5 mb-6 print:hidden font-sans">
+      {/* 4 Clean Soft Pastel Summary Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pb-5 border-b border-rose-100/70">
         {/* Card 1: Total PKKM */}
-        <div className="bg-slate-50/70 rounded-xl p-4 border border-slate-200/70 flex items-center justify-between">
+        <div className="bg-gradient-to-br from-rose-50/70 via-pink-50/50 to-white rounded-2xl p-4 border border-rose-200/70 flex items-center justify-between shadow-2xs">
           <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <p className="text-xs font-bold text-rose-800 uppercase tracking-wider">
               Total Bukti Fisik
             </p>
-            <h3 className="text-2xl font-bold text-slate-800 mt-1">
-              205 <span className="text-xs font-normal text-slate-500">Item</span>
+            <h3 className="text-2xl font-black text-slate-900 mt-1">
+              205 <span className="text-xs font-semibold text-slate-500">Item</span>
             </h3>
             <p className="text-[11px] text-slate-500 mt-0.5">Juknis Ditjen Pendis 2026</p>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-slate-200/60 text-slate-600 flex items-center justify-center shrink-0">
+          <div className="w-11 h-11 rounded-2xl bg-white text-rose-500 flex items-center justify-center shrink-0 border border-rose-200/80 shadow-2xs">
             <FileText className="w-5 h-5" />
           </div>
         </div>
 
         {/* Card 2: Kelengkapan Dokumen */}
-        <div className="bg-slate-50/70 rounded-xl p-4 border border-slate-200/70 flex items-center justify-between">
+        <div className="bg-gradient-to-br from-emerald-50/70 via-teal-50/50 to-white rounded-2xl p-4 border border-emerald-200/70 flex items-center justify-between shadow-2xs">
           <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <p className="text-xs font-bold text-emerald-800 uppercase tracking-wider">
               Dokumen Selesai
             </p>
-            <h3 className="text-2xl font-bold text-slate-800 mt-1">
-              {completedCount} <span className="text-xs font-normal text-slate-500">/ {totalItems}</span>
+            <h3 className="text-2xl font-black text-slate-900 mt-1">
+              {completedCount} <span className="text-xs font-semibold text-slate-500">/ {totalItems}</span>
             </h3>
-            <div className="flex items-center gap-2 mt-1">
-              <div className="w-20 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+            <div className="flex items-center gap-2 mt-1.5">
+              <div className="w-20 h-2 bg-emerald-100/80 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-teal-600 transition-all duration-500 rounded-full"
+                  className="h-full bg-emerald-500 transition-all duration-500 rounded-full"
                   style={{ width: `${percentage}%` }}
                 />
               </div>
-              <span className="text-xs font-semibold text-teal-700">{percentage}%</span>
+              <span className="text-xs font-extrabold text-emerald-700">{percentage}%</span>
             </div>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center shrink-0 border border-teal-100">
+          <div className="w-11 h-11 rounded-2xl bg-white text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-200/80 shadow-2xs">
             <CheckCircle2 className="w-5 h-5" />
           </div>
         </div>
 
         {/* Card 3: Google Drive */}
-        <div className="bg-slate-50/70 rounded-xl p-4 border border-slate-200/70 flex items-center justify-between">
+        <div className="bg-gradient-to-br from-sky-50/70 via-blue-50/50 to-white rounded-2xl p-4 border border-sky-200/70 flex items-center justify-between shadow-2xs">
           <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <p className="text-xs font-bold text-sky-800 uppercase tracking-wider">
               Tautan G-Drive
             </p>
-            <h3 className="text-2xl font-bold text-slate-800 mt-1">
-              {driveCount} <span className="text-xs font-normal text-slate-500">Terisi</span>
+            <h3 className="text-2xl font-black text-slate-900 mt-1">
+              {driveCount} <span className="text-xs font-semibold text-slate-500">Terisi</span>
             </h3>
             <p className="text-[11px] text-slate-500 mt-0.5">
               Folder A1 s.d E4 ({drivePercentage}%)
             </p>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center shrink-0 border border-blue-100">
+          <div className="w-11 h-11 rounded-2xl bg-white text-sky-500 flex items-center justify-center shrink-0 border border-sky-200/80 shadow-2xs">
             <Cloud className="w-5 h-5" />
           </div>
         </div>
 
         {/* Card 4: Insersi KBC */}
-        <div className="bg-slate-50/70 rounded-xl p-4 border border-slate-200/70 flex items-center justify-between">
+        <div className="bg-gradient-to-br from-purple-50/70 via-pink-50/50 to-white rounded-2xl p-4 border border-purple-200/70 flex items-center justify-between shadow-2xs">
           <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <p className="text-xs font-bold text-purple-800 uppercase tracking-wider">
               Insersi Panca Cinta
             </p>
-            <h3 className="text-2xl font-bold text-slate-800 mt-1">
-              38 <span className="text-xs font-normal text-slate-500">Item KBC</span>
+            <h3 className="text-2xl font-black text-slate-900 mt-1">
+              38 <span className="text-xs font-semibold text-slate-500">Item KBC</span>
             </h3>
             <p className="text-[11px] text-slate-500 mt-0.5">Deep Learning & 7 KAIH</p>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center shrink-0 border border-purple-100">
+          <div className="w-11 h-11 rounded-2xl bg-white text-purple-500 flex items-center justify-center shrink-0 border border-purple-200/80 shadow-2xs">
             <Heart className="w-5 h-5" />
           </div>
         </div>
@@ -377,24 +377,25 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({
             <div
               key={item.id}
               onClick={() => onSelectComponent(item.id)}
-              className={`p-2 rounded-lg border text-center cursor-pointer transition-all ${
+              className={`p-2 rounded-2xl border text-center cursor-pointer transition-all ${
                 activeComponent === item.id
-                  ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
-                  : 'bg-slate-50/70 hover:bg-slate-100 border-slate-200/80 text-slate-700'
+                  ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white border-pink-400 shadow-sm'
+                  : 'bg-white hover:bg-pink-50/50 border-pink-100 text-slate-700 shadow-2xs'
               }`}
+              title={`Klik untuk memfilter daftar dokumen ke Komponen ${item.id} (${item.percentage}% selesai)`}
             >
               <div className="flex items-center justify-center gap-1.5 text-[11px] font-bold">
                 <span
-                  className="w-2 h-2 rounded-full inline-block shrink-0"
-                  style={{ backgroundColor: item.color }}
+                  className="w-2 h-2 rounded-full inline-block shrink-0 shadow-2xs"
+                  style={{ backgroundColor: activeComponent === item.id ? '#ffffff' : item.color }}
                 />
                 <span>Komponen {item.id}</span>
               </div>
               <div className="mt-1 flex items-baseline justify-center gap-1">
-                <span className={`text-base font-extrabold ${activeComponent === item.id ? 'text-white' : 'text-slate-800'}`}>
+                <span className={`text-base font-black ${activeComponent === item.id ? 'text-white' : 'text-slate-800'}`}>
                   {item.percentage}%
                 </span>
-                <span className={`text-[10px] ${activeComponent === item.id ? 'text-slate-300' : 'text-slate-500'}`}>
+                <span className={`text-[10px] font-semibold ${activeComponent === item.id ? 'text-pink-100' : 'text-slate-400'}`}>
                   ({item.completed}/{item.total})
                 </span>
               </div>
@@ -406,15 +407,16 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({
       {/* 5 Component Navigation Buttons */}
       <div className="mt-4">
         <div className="flex items-center justify-between mb-2.5">
-          <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">
-            Filter 5 Komponen Utama PKKM:
+          <span className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-rose-400"></span>
+            Pilih Komponen Instrumen PKKM:
           </span>
           <button
             onClick={() => onSelectComponent('ALL')}
-            className={`text-xs px-3 py-1 rounded-lg transition-colors font-semibold cursor-pointer ${
+            className={`text-xs px-3.5 py-1.5 rounded-xl transition-all font-bold cursor-pointer ${
               activeComponent === 'ALL'
-                ? 'bg-slate-800 text-white shadow-xs'
-                : 'text-slate-600 hover:bg-slate-100'
+                ? 'bg-rose-500 text-white shadow-xs'
+                : 'text-slate-600 hover:text-rose-600 hover:bg-pink-50/80 border border-transparent hover:border-pink-200'
             }`}
             title="Tampilkan seluruh 205 instrumen bukti fisik dari Komponen A sampai E"
           >
@@ -432,23 +434,23 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({
               <button
                 key={comp.id}
                 onClick={() => onSelectComponent(comp.id as ComponentId)}
-                className={`p-3 rounded-xl border text-left transition-all relative overflow-hidden flex flex-col justify-between cursor-pointer ${
+                className={`p-3.5 rounded-2xl border text-left transition-all relative overflow-hidden flex flex-col justify-between cursor-pointer ${
                   isSelected
-                    ? 'bg-teal-50/80 border-teal-600 shadow-xs ring-1 ring-teal-500/30'
-                    : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/60'
+                    ? 'bg-rose-50/80 border-rose-400 shadow-xs ring-2 ring-rose-200'
+                    : 'bg-white border-rose-100/80 hover:border-pink-300 hover:bg-pink-50/40 shadow-2xs'
                 }`}
                 title={`Filter daftar bukti fisik hanya untuk Komponen ${comp.id}: ${comp.name} (${stats.completed}/${comp.count} selesai)`}
               >
                 <div>
-                  <div className="flex items-center justify-between text-xs mb-1">
+                  <div className="flex items-center justify-between text-xs mb-1.5">
                     <span
-                      className={`font-bold px-2 py-0.5 rounded text-[10px] ${
-                        isSelected ? 'bg-teal-700 text-white' : 'bg-slate-100 text-slate-700'
+                      className={`font-black px-2 py-0.5 rounded-full text-[10px] ${
+                        isSelected ? 'bg-rose-500 text-white' : 'bg-pink-50 text-rose-700 border border-pink-100'
                       }`}
                     >
                       KOMPONEN {comp.id}
                     </span>
-                    <span className="text-[11px] font-semibold text-slate-500">
+                    <span className="text-[11px] font-bold text-slate-500">
                       {stats.completed}/{comp.count}
                     </span>
                   </div>
@@ -457,10 +459,10 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({
                   </h4>
                 </div>
 
-                <div className="mt-2.5">
-                  <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                <div className="mt-3">
+                  <div className="w-full h-1.5 bg-pink-100/60 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-teal-600 rounded-full transition-all duration-300"
+                      className="h-full bg-gradient-to-r from-rose-400 to-pink-500 rounded-full transition-all duration-300"
                       style={{ width: `${compPercent}%` }}
                     />
                   </div>

@@ -1,8 +1,16 @@
 /**
  * Export HTML string as a downloadable Word Document (.doc)
  * Word natively understands HTML with mso markup and opens it seamlessly.
+ * Supports dynamic Portrait and Landscape page setup.
  */
-export function downloadAsWordDoc(filename: string, title: string, contentHtml: string): void {
+export function downloadAsWordDoc(
+  filename: string, 
+  title: string, 
+  contentHtml: string, 
+  orientation: 'portrait' | 'landscape' = 'portrait'
+): void {
+  const isLandscape = orientation === 'landscape';
+
   const header = `<!DOCTYPE html>
 <html xmlns:o='urn:schemas-microsoft-com:office:office' 
       xmlns:w='urn:schemas-microsoft-com:office:word' 
@@ -20,28 +28,36 @@ export function downloadAsWordDoc(filename: string, title: string, contentHtml: 
   </xml>
   <![endif]-->
   <style>
+    @page Section1 {
+      size: ${isLandscape ? '11.0in 8.5in; mso-page-orientation: landscape;' : '8.5in 11.0in; mso-page-orientation: portrait;'};
+      margin: ${isLandscape ? '1.5cm 2.0cm 1.5cm 2.0cm;' : '2.54cm 2.54cm 2.54cm 2.54cm;'};
+      mso-header-margin: .5in;
+      mso-footer-margin: .5in;
+    }
+    div.Section1 {
+      page: Section1;
+    }
     body {
       font-family: 'Times New Roman', Times, serif;
-      font-size: 12pt;
-      line-height: 1.5;
+      font-size: ${isLandscape ? '10.5pt' : '12pt'};
+      line-height: 1.45;
       color: #000;
-      margin: 2.54cm;
     }
-    h1 { font-size: 16pt; font-weight: bold; text-align: center; margin-bottom: 2pt; text-transform: uppercase; }
-    h2 { font-size: 14pt; font-weight: bold; text-align: center; margin-bottom: 2pt; text-transform: uppercase; }
-    h3 { font-size: 13pt; font-weight: bold; text-align: center; margin-bottom: 6pt; }
-    h4 { font-size: 12pt; font-weight: bold; margin-top: 10pt; margin-bottom: 4pt; }
-    p { margin-bottom: 6pt; text-align: justify; }
+    h1 { font-size: ${isLandscape ? '14pt' : '16pt'}; font-weight: bold; text-align: center; margin-bottom: 2pt; text-transform: uppercase; }
+    h2 { font-size: ${isLandscape ? '12.5pt' : '14pt'}; font-weight: bold; text-align: center; margin-bottom: 2pt; text-transform: uppercase; }
+    h3 { font-size: ${isLandscape ? '11.5pt' : '13pt'}; font-weight: bold; text-align: center; margin-bottom: 5pt; }
+    h4 { font-size: 11pt; font-weight: bold; margin-top: 8pt; margin-bottom: 3pt; }
+    p { margin-bottom: 5pt; text-align: justify; }
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 8pt;
-      margin-bottom: 12pt;
+      margin-top: 6pt;
+      margin-bottom: 10pt;
     }
     th, td {
       border: 1pt solid #000;
-      padding: 5pt;
-      font-size: 11pt;
+      padding: ${isLandscape ? '4pt 5pt' : '5pt 6pt'};
+      font-size: ${isLandscape ? '9.5pt' : '10.5pt'};
       text-align: left;
     }
     th {
@@ -54,7 +70,7 @@ export function downloadAsWordDoc(filename: string, title: string, contentHtml: 
       border-top: 2pt solid #000;
       border-bottom: 0.5pt solid #000;
       height: 4pt;
-      margin: 8pt 0 14pt 0;
+      margin: 6pt 0 12pt 0;
     }
     .text-center { text-align: center; }
     .text-right { text-align: right; }
@@ -62,7 +78,9 @@ export function downloadAsWordDoc(filename: string, title: string, contentHtml: 
   </style>
 </head>
 <body>
-  ${contentHtml}
+  <div class="Section1">
+    ${contentHtml}
+  </div>
 </body>
 </html>`;
 
