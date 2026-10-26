@@ -17,7 +17,8 @@ import { LoginGate } from './components/LoginGate';
 import { SellerAccountsModal } from './components/SellerAccountsModal';
 import { UserFlowModal } from './components/UserFlowModal';
 import { BackupRestoreModal } from './components/BackupRestoreModal';
-import { Check, Sparkles, Compass } from 'lucide-react';
+import { CustomUploadModal } from './components/CustomUploadModal';
+import { Check, Sparkles, Compass, UploadCloud } from 'lucide-react';
 
 const STORAGE_KEYS = {
   PROFILE: 'pkkm_2026_profile',
@@ -105,6 +106,8 @@ export default function App() {
   const [isBatchOpen, setIsBatchOpen] = useState(false);
   const [isSellerModalOpen, setIsSellerModalOpen] = useState(false);
   const [isBackupOpen, setIsBackupOpen] = useState(false);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [uploadTargetItem, setUploadTargetItem] = useState<PKKMItem | null>(null);
   const [autoShowUserFlow, setAutoShowUserFlow] = useState<boolean>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.AUTO_SHOW_USER_FLOW);
@@ -424,6 +427,10 @@ export default function App() {
         onOpenSaved={() => setIsSavedOpen(true)}
         onOpenKBCGuide={() => setIsKBCGuideOpen(true)}
         onOpenBatch={() => setIsBatchOpen(true)}
+        onOpenCustomUpload={() => {
+          setUploadTargetItem(null);
+          setIsUploadModalOpen(true);
+        }}
         onOpenSellerAccounts={() => setIsSellerModalOpen(true)}
         onOpenUserFlow={() => setIsUserFlowOpen(true)}
         onOpenBackup={() => setIsBackupOpen(true)}
@@ -451,7 +458,7 @@ export default function App() {
             </p>
           </div>
 
-          <div className="flex items-center gap-2 self-start md:self-center">
+          <div className="flex flex-wrap items-center gap-2 self-start md:self-center">
             <button
               onClick={() => setIsUserFlowOpen(true)}
               className="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer hover:scale-102"
@@ -459,6 +466,17 @@ export default function App() {
             >
               <Compass className="w-3.5 h-3.5 text-amber-200" />
               <span>Alur Penggunaan</span>
+            </button>
+            <button
+              onClick={() => {
+                setUploadTargetItem(null);
+                setIsUploadModalOpen(true);
+              }}
+              className="px-3.5 py-2 bg-white/95 hover:bg-rose-50 text-rose-800 font-bold text-xs rounded-xl border border-rose-300 shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer hover:scale-102"
+              title="Unggah file naskah dokumen guru (.docx / .txt) lalu sesuaikan otomatis ke profil madrasah"
+            >
+              <UploadCloud className="w-3.5 h-3.5 text-rose-600" />
+              <span>Upload Dokumen Guru</span>
             </button>
             <button
               onClick={() => setIsBatchOpen(true)}
@@ -497,6 +515,10 @@ export default function App() {
           activeComponent={activeComponent}
           onOpenGenerator={(it) => setGeneratorItem(it)}
           onInstantGenerate={handleInstantGenerate}
+          onOpenUploadItem={(it) => {
+            setUploadTargetItem(it);
+            setIsUploadModalOpen(true);
+          }}
           onToggleStatus={handleToggleStatus}
           onUpdateDriveUrl={handleUpdateDriveUrl}
         />
@@ -635,6 +657,27 @@ export default function App() {
         folderLinks={folderLinks}
         savedDocs={savedDocs}
         onRestoreBackup={handleRestoreBackup}
+      />
+
+      {/* 10. Custom Upload & Adaptation Modal */}
+      <CustomUploadModal
+        isOpen={isUploadModalOpen}
+        onClose={() => {
+          setIsUploadModalOpen(false);
+          setUploadTargetItem(null);
+        }}
+        profile={profile}
+        items={items}
+        initialItem={uploadTargetItem}
+        onSaveAndOpenViewer={(item, title, content) => {
+          handleSaveDocument(title, content, item);
+          setViewerData({ item, title, content });
+          showToast(`Dokumen #${item.id} berhasil disesuaikan & dibuka di pratinjau.`);
+        }}
+        onSaveDirectly={(item, title, content) => {
+          handleSaveDocument(title, content, item);
+          showToast(`Dokumen bukti fisik #${item.id} berhasil disimpan ke arsip.`);
+        }}
       />
 
       {/* Floating Quick Helper Button for Workflow Guide - Girly Soft Pastel Gradient */}

@@ -65,8 +65,8 @@ export const UserFlowModal: React.FC<UserFlowModalProps> = ({
     {
       step: 3,
       badge: 'Langkah Ketiga',
-      title: 'Buat Dokumen Otomatis (AI Gemini / Template)',
-      desc: 'Klik tombol "Generate AI" untuk naskah cerdas berorientasi Kurikulum Berbasis Cinta (KBC), atau tombol "Template" untuk draf format standar baku instrumen PKKM seketika. Tersedia juga "Paket Cepat" untuk membuat banyak SK pokok sekaligus.',
+      title: 'Buat / Upload Dokumen (AI, Template, atau File Guru)',
+      desc: 'Gunakan tombol "Generate AI" untuk naskah cerdas berorientasi KBC, "Template" untuk format baku seketika, atau tombol "Upload Dokumen Guru" (.docx / .txt) untuk menyesuaikan dokumen yang sudah dimiliki sekolah/guru ke profil madrasah aktif. Tersedia juga "Paket Cepat" untuk membuat banyak SK pokok sekaligus.',
       icon: Sparkles,
       color: 'bg-amber-50 text-amber-700 border-amber-200',
       actionLabel: 'Lihat Paket Dokumen Cepat',

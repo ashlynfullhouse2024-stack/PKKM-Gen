@@ -10,7 +10,8 @@ import {
   LogOut, 
   UserCheck,
   Compass,
-  HardDrive
+  HardDrive,
+  UploadCloud
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -22,6 +23,7 @@ interface HeaderProps {
   onOpenSaved: () => void;
   onOpenKBCGuide: () => void;
   onOpenBatch: () => void;
+  onOpenCustomUpload: () => void;
   onOpenSellerAccounts: () => void;
   onOpenUserFlow: () => void;
   onOpenBackup: () => void;
@@ -37,6 +39,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenSaved,
   onOpenKBCGuide,
   onOpenBatch,
+  onOpenCustomUpload,
   onOpenSellerAccounts,
   onOpenUserFlow,
   onOpenBackup,
@@ -167,6 +170,16 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <Layers className="w-3.5 h-3.5 text-amber-500" />
               <span>Paket Cepat</span>
+            </button>
+
+            {/* Upload & Kustomisasi Dokumen Guru */}
+            <button
+              onClick={onOpenCustomUpload}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-rose-50 via-pink-50 to-purple-50 hover:from-rose-100 hover:to-pink-100 text-rose-800 text-xs font-bold border border-rose-300 transition-all shadow-2xs cursor-pointer hover:scale-102"
+              title="Unggah file naskah dokumen guru/madrasah (.docx / .txt) lalu sesuaikan otomatis dengan identitas madrasah saat ini"
+            >
+              <UploadCloud className="w-3.5 h-3.5 text-rose-600" />
+              <span>Upload Dokumen Guru</span>
             </button>
 
             <button

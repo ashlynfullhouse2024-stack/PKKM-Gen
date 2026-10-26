@@ -1,17 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import mammoth from 'mammoth';
 import { MadrasahProfile, PKKMItem } from '../types';
 import { generateStandardDocument } from '../utils/documentTemplates';
+import { getItemGuidance } from '../utils/itemGuidance';
 import { 
   Sparkles, 
   X, 
   Check, 
   FileText, 
-  Wand2, 
-  BookOpen, 
-  Layers, 
   HeartHandshake, 
   Loader2, 
-  AlertCircle 
+  AlertCircle,
+  UploadCloud,
+  FileCheck,
+  Trash2,
+  ChevronDown,
+  ChevronUp,
+  Lightbulb,
+  FileSpreadsheet,
+  CheckCircle2
 } from 'lucide-react';
 
 interface DocumentGeneratorModalProps {
@@ -29,8 +36,8 @@ export const DocumentGeneratorModal: React.FC<DocumentGeneratorModalProps> = ({
   onClose,
   onDocumentGenerated,
 }) => {
-  const [mapel, setMapel] = useState('Pendidikan Agama Islam (Fikih)');
-  const [kelas, setKelas] = useState('Kelas VIII / Fase D');
+  const [mapel, setMapel] = useState('');
+  const [kelas, setKelas] = useState('');
   const [semester, setSemester] = useState('Semester Ganjil');
   const [temaKbc, setTemaKbc] = useState('Cinta Allah & Rasul dan Cinta Sesama');
   const [customPrompt, setCustomPrompt] = useState('');
@@ -38,7 +45,119 @@ export const DocumentGeneratorModal: React.FC<DocumentGeneratorModalProps> = ({
   const [generationStep, setGenerationStep] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  if (!isOpen || !item) return null;
+  const [showAcademicAccordion, setShowAcademicAccordion] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<{ name: string; size: string; wordCount: number } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isExtractingFile, setIsExtractingFile] = useState(false);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Derive item guidance
+  const guidance = item ? getItemGuidance(item, profile) : null;
+
+  // Initialize and reset form when active item changes
+  useEffect(() => {
+    if (item && guidance) {
+      setCustomPrompt('');
+      setUploadedFile(null);
+      setErrorMsg(null);
+      if (guidance.showAcademicInputs) {
+        setMapel('Pendidikan Agama Islam (Fikih)');
+        setKelas('Kelas VIII / Fase D');
+        setShowAcademicAccordion(true);
+      } else {
+        setMapel('');
+        setKelas('');
+        setShowAcademicAccordion(false);
+      }
+    }
+  }, [item?.id]);
+
+  if (!isOpen || !item || !guidance) return null;
+
+  // Process file upload (docx, txt, md, csv)
+  const processUploadedFile = async (file: File) => {
+    setIsExtractingFile(true);
+    setErrorMsg(null);
+    try {
+      const ext = file.name.split('.').pop()?.toLowerCase();
+      let extractedText = '';
+
+      if (ext === 'docx') {
+        const arrayBuffer = await file.arrayBuffer();
+        const res = await mammoth.extractRawText({ arrayBuffer });
+        extractedText = res.value.trim();
+      } else if (ext === 'txt' || ext === 'md' || ext === 'csv' || ext === 'rtf') {
+        extractedText = (await file.text()).trim();
+      } else {
+        throw new Error(`Format .${ext} belum didukung. Gunakan file Word (.docx), file teks (.txt), atau data tabel (.csv).`);
+      }
+
+      if (!extractedText) {
+        throw new Error('File tidak memiliki teks yang terbaca atau kosong.');
+      }
+
+      const words = extractedText.split(/\s+/).filter(Boolean).length;
+      setUploadedFile({
+        name: file.name,
+        size: (file.size / 1024).toFixed(1) + ' KB',
+        wordCount: words,
+      });
+
+      // Append or replace in customPrompt
+      setCustomPrompt((prev) => {
+        if (prev.trim()) {
+          return `${prev.trim()}\n\n--- [DATA DARI FILE: ${file.name}] ---\n${extractedText}`;
+        }
+        return extractedText;
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Gagal membaca isi file.';
+      setErrorMsg(msg);
+    } finally {
+      setIsExtractingFile(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      processUploadedFile(file);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      processUploadedFile(file);
+    }
+  };
+
+  const handleClearUploadedFile = () => {
+    setUploadedFile(null);
+    setCustomPrompt('');
+  };
+
+  const handleInsertQuickSample = (sampleText: string) => {
+    setCustomPrompt((prev) => {
+      if (prev.trim()) {
+        return `${prev.trim()}\n\n${sampleText}`;
+      }
+      return sampleText;
+    });
+  };
 
   const handleGenerate = async (useAi: boolean) => {
     setIsGenerating(true);
@@ -49,10 +168,10 @@ export const DocumentGeneratorModal: React.FC<DocumentGeneratorModalProps> = ({
       kelas ? `Tingkat / Fase: ${kelas}` : '',
       semester ? `Semester: ${semester}` : '',
       item.kbcTag && temaKbc ? `Fokus Panca Cinta KBC: ${temaKbc}` : '',
-      customPrompt ? `Catatan Tambahan: ${customPrompt}` : '',
+      customPrompt ? `Data Riil Madrasah & Catatan Guru:\n${customPrompt}` : '',
     ]
       .filter(Boolean)
-      .join('\n');
+      .join('\n\n');
 
     if (useAi) {
       setGenerationStep('Menghubungkan ke Gemini 3.8 Flash AI...');
@@ -62,7 +181,7 @@ export const DocumentGeneratorModal: React.FC<DocumentGeneratorModalProps> = ({
         }, 1200);
 
         const timer2 = setTimeout(() => {
-          setGenerationStep('Mengintegrasikan Kurikulum Berbasis Cinta (KBC) & matriks bukti fisik...');
+          setGenerationStep('Mengintegrasikan data riil madrasah, Kurikulum Berbasis Cinta & tabel bukti fisik...');
         }, 2800);
 
         const sessionToken = localStorage.getItem('pkkm_session_token') || '';
@@ -111,23 +230,19 @@ export const DocumentGeneratorModal: React.FC<DocumentGeneratorModalProps> = ({
           setIsGenerating(false);
           return;
         } else {
-          // If fallback message was returned because no API key or other reason, use standard high-grade template
-          console.log('AI fallback to standard template:', data.message || data.error);
           const fallbackDoc = generateStandardDocument(item, profile, fullCustomNotes);
           onDocumentGenerated(item.title, fallbackDoc, item);
           setIsGenerating(false);
           return;
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.warn('AI call error, switching to standard template:', err);
-        // Seamless fallback to standard official template
         const fallbackDoc = generateStandardDocument(item, profile, fullCustomNotes);
         onDocumentGenerated(item.title, fallbackDoc, item);
         setIsGenerating(false);
         return;
       }
     } else {
-      // Instant template mode
       setGenerationStep('Menyiapkan template standar instan...');
       setTimeout(() => {
         const standardDoc = generateStandardDocument(item, profile, fullCustomNotes);
@@ -138,10 +253,10 @@ export const DocumentGeneratorModal: React.FC<DocumentGeneratorModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto font-sans">
-      <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-2xl overflow-hidden my-8 animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-sm overflow-y-auto">
+      <div className="bg-white rounded-3xl shadow-2xl border border-rose-100 w-full max-w-3xl max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         {/* Modal Header */}
-        <div className="bg-gradient-to-r from-rose-100 via-pink-50 to-purple-100 px-6 py-4 text-slate-800 flex items-center justify-between border-b border-rose-200/80">
+        <div className="bg-gradient-to-r from-rose-100 via-pink-50 to-purple-100 px-6 py-4 text-slate-800 flex items-center justify-between border-b border-rose-200/80 shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-rose-400 to-pink-500 text-white flex items-center justify-center shadow-xs">
               <Sparkles className="w-5 h-5 text-amber-200" />
@@ -170,10 +285,10 @@ export const DocumentGeneratorModal: React.FC<DocumentGeneratorModalProps> = ({
           </button>
         </div>
 
-        {/* Modal Body */}
-        <div className="p-6 space-y-5">
-          {/* Item Info Box */}
-          <div className="bg-gradient-to-br from-rose-50/60 via-pink-50/40 to-white border border-rose-200/80 rounded-2xl p-4 shadow-2xs">
+        {/* Modal Body - Scrollable */}
+        <div className="p-5 sm:p-6 space-y-4 overflow-y-auto bg-slate-50/40 flex-1">
+          {/* Target PKKM Item Summary */}
+          <div className="bg-white border border-rose-200/80 rounded-2xl p-4 shadow-2xs">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <span className="inline-block text-[11px] font-black uppercase tracking-wider text-rose-700 bg-rose-100/80 px-2.5 py-0.5 rounded-md mb-1.5 border border-rose-200/60">
@@ -195,134 +310,314 @@ export const DocumentGeneratorModal: React.FC<DocumentGeneratorModalProps> = ({
             </div>
           </div>
 
-          {/* Configuration Form */}
-          <div className="space-y-4">
+          {/* Context-Aware Guidance Card */}
+          <div className="bg-gradient-to-r from-rose-50 via-pink-50 to-purple-50 border border-pink-200 rounded-2xl p-4 shadow-2xs space-y-2">
             <div className="flex items-center justify-between">
-              <h5 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-rose-400"></span>
-                Kustomisasi Dokumen (Opsional)
-              </h5>
-              <span className="text-[11px] text-rose-600 font-semibold bg-pink-50 px-2 py-0.5 rounded-full border border-pink-100">
-                Memberikan data riil madrasah ke AI
+              <span className="text-[10px] font-black tracking-wider text-rose-700 bg-white px-2.5 py-0.5 rounded-full border border-rose-200 shadow-2xs uppercase">
+                {guidance.titleBadge}
+              </span>
+              <span className="text-[11px] font-semibold text-slate-500">
+                Untuk Madrasah: {profile.namaMadrasah}
+              </span>
+            </div>
+            <h5 className="text-xs sm:text-sm font-extrabold text-slate-900">
+              {guidance.headline}
+            </h5>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              {guidance.explanation}
+            </p>
+          </div>
+
+          {/* Upload File Box Tailored to This Specific PKKM Point */}
+          <div className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-2xs space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-xs">
+                  📁
+                </div>
+                <div>
+                  <span className="text-xs font-bold text-slate-800">
+                    File Yang Bisa Anda Upload untuk Poin #{item.id}:
+                  </span>
+                </div>
+              </div>
+              <span className="text-[11px] text-slate-400">
+                Format: .docx, .txt, .csv, .md
               </span>
             </div>
 
-            {/* Explanatory Banner about Customization */}
-            <div className="bg-pink-50/60 border border-pink-200/70 rounded-2xl p-3 text-[11px] text-slate-600 leading-relaxed space-y-1">
-              <p className="font-bold text-rose-900">
-                Apa fungsi formulir kustomisasi ini?
+            {/* List of recommended file types for this item */}
+            <div className="bg-slate-50 border border-slate-200/70 rounded-xl p-3">
+              <p className="text-[11px] font-semibold text-slate-700 mb-1.5">
+                Contoh berkas yang cocok diunggah ke bukti fisik ini:
               </p>
-              <p>
-                Bagian ini menghubungkan <strong>poin bukti fisik PKKM</strong> di atas dengan <strong>kondisi riil madrasah Anda</strong>. Misalnya pada usaha madrasah, Anda dapat menginstruksikan jenis usaha <em>"Hidroponik Sayur"</em>, terhubung mapel <em>"IPA / Prakarya"</em> kelas 8. AI Gemini akan otomatis menyusun draf naskah resmi, tabel rincian kegiatan, dan lembar pengesahan yang otentik.
-              </p>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[11px] text-slate-600">
+                {guidance.uploadExamples.map((ex, idx) => (
+                  <li key={idx} className="flex items-start gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>{ex}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
 
-            {/* Show Mapel & Kelas */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Mata Pelajaran Terkait (Opsional)
-                </label>
-                <input
-                  type="text"
-                  value={mapel}
-                  onChange={(e) => setMapel(e.target.value)}
-                  placeholder="Misal: IPA, Prakarya, Fikih, dll"
-                  className="w-full px-3 py-2 text-xs border border-pink-200/80 rounded-xl bg-pink-50/20 focus:bg-white focus:ring-2 focus:ring-rose-400 font-medium"
-                />
-                <p className="text-[10px] text-slate-400 mt-1">
-                  Isi jika dokumen terintegrasi KBM/P5/proyek siswa (contoh: IPA untuk Hidroponik).
-                </p>
+            {/* Drag and Drop / Browse Area */}
+            <div
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              onClick={() => fileInputRef.current?.click()}
+              className={`border-2 border-dashed rounded-2xl p-4 sm:p-5 text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-2 ${
+                isDragging
+                  ? 'border-purple-500 bg-purple-50/80 scale-101'
+                  : 'border-slate-300 hover:border-purple-400 bg-slate-50/60 hover:bg-purple-50/30'
+              }`}
+            >
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".docx,.txt,.md,.csv,.rtf"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+
+              <div className="w-10 h-10 rounded-xl bg-white shadow-xs border border-purple-200 flex items-center justify-center text-purple-600">
+                <UploadCloud className="w-5 h-5" />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Tingkat Kelas & Semester (Opsional)
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <input
-                    type="text"
-                    value={kelas}
-                    onChange={(e) => setKelas(e.target.value)}
-                    placeholder="Kelas VII/VIII"
-                    className="w-full px-3 py-2 text-xs border border-pink-200/80 rounded-xl bg-pink-50/20 focus:bg-white focus:ring-2 focus:ring-rose-400 font-medium"
-                  />
-                  <input
-                    type="text"
-                    value={semester}
-                    onChange={(e) => setSemester(e.target.value)}
-                    placeholder="Ganjil / Genap"
-                    className="w-full px-3 py-2 text-xs border border-pink-200/80 rounded-xl bg-pink-50/20 focus:bg-white focus:ring-2 focus:ring-rose-400 font-medium"
-                  />
+                <p className="text-xs font-bold text-slate-800">
+                  Klik untuk pilih file dari komputer atau seret ke sini
+                </p>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Teks dalam file Word/Excel/Teks akan diekstrak otomatis dan dimasukkan ke draf AI
+                </p>
+              </div>
+
+              {isExtractingFile && (
+                <div className="flex items-center gap-2 text-xs text-purple-600 font-semibold animate-pulse mt-1">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Mengekstrak isi file...</span>
                 </div>
-                <p className="text-[10px] text-slate-400 mt-1">
-                  Tingkat sasaran implementasi kegiatan di madrasah.
-                </p>
-              </div>
+              )}
             </div>
 
-            {/* KBC Focus */}
-            {item.kbcTag && (
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">
-                  <HeartHandshake className="w-3.5 h-3.5 text-purple-600" />
-                  Fokus Dimensi Panca Cinta KBC
-                </label>
-                <select
-                  value={temaKbc}
-                  onChange={(e) => setTemaKbc(e.target.value)}
-                  className="w-full px-3 py-2 text-xs border border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-400 bg-purple-50/40 font-medium text-slate-800"
+            {/* Uploaded File Notification Banner */}
+            {uploadedFile && (
+              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between text-xs animate-in fade-in">
+                <div className="flex items-center gap-2.5">
+                  <FileCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <div>
+                    <span className="font-bold text-emerald-900 block">
+                      {uploadedFile.name}
+                    </span>
+                    <span className="text-[11px] text-emerald-700">
+                      {uploadedFile.size} • {uploadedFile.wordCount} kata berhasil dimuat ke instruksi AI
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleClearUploadedFile}
+                  className="px-2 py-1 bg-white hover:bg-rose-50 text-rose-600 border border-rose-200 rounded-lg text-xs font-semibold flex items-center gap-1 cursor-pointer transition-colors"
+                  title="Hapus file dan kosongkan catatan"
                 >
-                  <option value="Cinta Allah & Rasul dan Cinta Ilmu">
-                    Cinta Allah & Rasul dan Cinta Ilmu (Spiritual & Keilmuan)
-                  </option>
-                  <option value="Cinta Diri & Sesama (Anti-Bullying & Empati)">
-                    Cinta Diri & Sesama (Anti-Bullying, Disiplin Positif & Welas Asih)
-                  </option>
-                  <option value="Cinta Lingkungan (Green School & Konservasi)">
-                    Cinta Lingkungan (Green School, Kebersihan Sanitasi & Bank Sampah)
-                  </option>
-                  <option value="Cinta Bangsa & Tanah Air (Moderasi Beragama)">
-                    Cinta Bangsa & Tanah Air (Moderasi Beragama, Toleransi & Kerukunan)
-                  </option>
-                  <option value="Harmoni Seluruh 5 Dimensi Panca Cinta KBC">
-                    Harmoni Seluruh 5 Dimensi Panca Cinta KBC
-                  </option>
-                </select>
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Hapus</span>
+                </button>
               </div>
             )}
-
-            {/* Custom Teacher Instructions */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
-                Catatan / Instruksi Khusus Guru untuk AI (Sangat Direkomendasikan)
-              </label>
-              <textarea
-                rows={2}
-                value={customPrompt}
-                onChange={(e) => setCustomPrompt(e.target.value)}
-                placeholder="Contoh: Masukkan unit budidaya hidroponik pakcoy & selada, koordinator Bapak Zulkifli, S.Pd, dan omzet panen untuk kas madrasah..."
-                className="w-full px-3 py-2 text-xs border border-pink-200/80 rounded-xl bg-pink-50/20 focus:bg-white focus:ring-2 focus:ring-rose-400 font-medium text-slate-800"
-              />
-              <p className="text-[10px] text-slate-400 mt-1">
-                AI akan membaca catatan ini dan menjadikannya materi pokok dalam klausul dokumen resmi PKKM.
-              </p>
-            </div>
           </div>
+
+          {/* 1-Click Quick Samples */}
+          {guidance.quickSamples && guidance.quickSamples.length > 0 && (
+            <div className="bg-amber-50/60 border border-amber-200/80 rounded-2xl p-3.5 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-amber-900 flex items-center gap-1.5">
+                  <Lightbulb className="w-4 h-4 text-amber-600" />
+                  <span>Belum Punya File? Gunakan Contoh Data Riil (1-Klik):</span>
+                </span>
+                <span className="text-[10px] text-amber-700 font-semibold">
+                  Klik untuk mengisi
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {guidance.quickSamples.map((sample, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => handleInsertQuickSample(sample.text)}
+                    className="px-3 py-1.5 bg-white hover:bg-amber-100/60 text-slate-800 text-xs font-bold rounded-xl border border-amber-300 shadow-2xs transition-all cursor-pointer hover:scale-102 text-left"
+                    title={sample.description}
+                  >
+                    <span>{sample.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Text Area for Teacher Notes / Extracted Content */}
+          <div className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-2xs space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                <FileText className="w-4 h-4 text-rose-500" />
+                <span>Rincian Data Riil Madrasah untuk AI:</span>
+              </label>
+              <span className="text-[11px] text-slate-400 font-mono">
+                {customPrompt.length} karakter • {customPrompt.split(/\s+/).filter(Boolean).length} kata
+              </span>
+            </div>
+
+            <textarea
+              rows={4}
+              value={customPrompt}
+              onChange={(e) => setCustomPrompt(e.target.value)}
+              placeholder={guidance.placeholderText}
+              className="w-full p-3 text-xs border border-pink-200/80 rounded-xl bg-pink-50/20 focus:bg-white focus:ring-2 focus:ring-rose-400 font-mono leading-relaxed text-slate-800 resize-y"
+            />
+            <p className="text-[10px] text-slate-500">
+              Data di atas akan dianalisis oleh AI Gemini untuk menyusun rincian tabel, klausul SK, serta data faktual bukti fisik #{item.id}.
+            </p>
+          </div>
+
+          {/* Optional Academic Fields (Mapel & Kelas) - Accordion if not academic */}
+          {guidance.showAcademicInputs ? (
+            <div className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-2xs space-y-3">
+              <h6 className="text-xs font-bold text-slate-800">
+                Data Pembelajaran & Kelas (Modul Ajar / KBC)
+              </h6>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Mata Pelajaran:
+                  </label>
+                  <input
+                    type="text"
+                    value={mapel}
+                    onChange={(e) => setMapel(e.target.value)}
+                    placeholder="Contoh: Pendidikan Agama Islam, IPA, dll"
+                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-rose-400 font-medium"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Tingkat Kelas & Semester:
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="text"
+                      value={kelas}
+                      onChange={(e) => setKelas(e.target.value)}
+                      placeholder="Kelas VII / Fase D"
+                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-rose-400 font-medium"
+                    />
+                    <input
+                      type="text"
+                      value={semester}
+                      onChange={(e) => setSemester(e.target.value)}
+                      placeholder="Semester Ganjil"
+                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-rose-400 font-medium"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-white border border-slate-200/80 rounded-2xl p-3 shadow-2xs">
+              <button
+                type="button"
+                onClick={() => setShowAcademicAccordion(!showAcademicAccordion)}
+                className="w-full flex items-center justify-between text-xs font-bold text-slate-600 hover:text-slate-900 cursor-pointer"
+              >
+                <span>+ Opsi Tambahan: Mata Pelajaran & Kelas (Khusus Dokumen KBM)</span>
+                {showAcademicAccordion ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              </button>
+
+              {showAcademicAccordion && (
+                <div className="mt-3 pt-3 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-3 animate-in fade-in">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      Mata Pelajaran (Opsional):
+                    </label>
+                    <input
+                      type="text"
+                      value={mapel}
+                      onChange={(e) => setMapel(e.target.value)}
+                      placeholder="Isi jika dokumen terkait KBM spesifik"
+                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-rose-400 font-medium"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      Kelas & Semester (Opsional):
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <input
+                        type="text"
+                        value={kelas}
+                        onChange={(e) => setKelas(e.target.value)}
+                        placeholder="Kelas VII"
+                        className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-rose-400 font-medium"
+                      />
+                      <input
+                        type="text"
+                        value={semester}
+                        onChange={(e) => setSemester(e.target.value)}
+                        placeholder="Ganjil / Genap"
+                        className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-rose-400 font-medium"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* KBC Focus Dimensi */}
+          {item.kbcTag && (
+            <div className="bg-purple-50/50 border border-purple-200 rounded-2xl p-3.5 space-y-1.5">
+              <label className="block text-xs font-bold text-purple-900 flex items-center gap-1.5">
+                <HeartHandshake className="w-3.5 h-3.5 text-purple-600" />
+                <span>Fokus Dimensi Panca Cinta Kurikulum Berbasis Cinta (KBC):</span>
+              </label>
+              <select
+                value={temaKbc}
+                onChange={(e) => setTemaKbc(e.target.value)}
+                className="w-full px-3 py-2 text-xs border border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-400 bg-white font-medium text-slate-800"
+              >
+                <option value="Cinta Allah & Rasul dan Cinta Ilmu">
+                  Cinta Allah & Rasul dan Cinta Ilmu (Spiritual & Keilmuan)
+                </option>
+                <option value="Cinta Diri & Sesama (Anti-Bullying & Empati)">
+                  Cinta Diri & Sesama (Anti-Bullying, Disiplin Positif & Welas Asih)
+                </option>
+                <option value="Cinta Lingkungan (Green School & Konservasi)">
+                  Cinta Lingkungan (Green School, Kebersihan Sanitasi & Bank Sampah)
+                </option>
+                <option value="Cinta Bangsa & Tanah Air (Moderasi Beragama)">
+                  Cinta Bangsa & Tanah Air (Moderasi Beragama, Toleransi & Kerukunan)
+                </option>
+                <option value="Harmoni Seluruh 5 Dimensi Panca Cinta KBC">
+                  Harmoni Seluruh 5 Dimensi Panca Cinta KBC
+                </option>
+              </select>
+            </div>
+          )}
 
           {/* Generating State */}
           {isGenerating && (
-            <div className="bg-gradient-to-r from-purple-900 via-slate-900 to-rose-950 text-white rounded-2xl p-4 flex items-center gap-3 shadow-lg border border-purple-700/50">
+            <div className="bg-gradient-to-r from-purple-900 via-slate-900 to-rose-950 text-white rounded-2xl p-4 flex items-center gap-3 shadow-lg border border-purple-700/50 animate-pulse">
               <Loader2 className="w-5 h-5 text-amber-300 animate-spin shrink-0" />
               <div>
-                <p className="text-xs font-bold text-amber-200">Sedang Memproses Dokumen AI...</p>
+                <p className="text-xs font-bold text-amber-200">Sedang Memproses Dokumen PKKM...</p>
                 <p className="text-xs text-slate-300 mt-0.5">{generationStep}</p>
               </div>
             </div>
           )}
 
           {errorMsg && (
-            <div className="bg-rose-50 text-rose-800 p-3 rounded-2xl text-xs flex items-center gap-2 border border-rose-200">
+            <div className="bg-rose-50 text-rose-800 p-3 rounded-2xl text-xs flex items-center gap-2 border border-rose-200 animate-in fade-in">
               <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
               <span>{errorMsg}</span>
             </div>
@@ -330,37 +625,37 @@ export const DocumentGeneratorModal: React.FC<DocumentGeneratorModalProps> = ({
         </div>
 
         {/* Modal Actions */}
-        <div className="bg-pink-50/40 px-6 py-4 border-t border-rose-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="bg-pink-50/40 px-6 py-4 border-t border-rose-100 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
           <button
             type="button"
-            onClick={() => handleGenerate(false)}
+            onClick={onClose}
             disabled={isGenerating}
-            className="w-full sm:w-auto px-4 py-2.5 border border-pink-200 bg-white hover:bg-pink-50 text-slate-700 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shadow-2xs"
-            title="Buat naskah dokumen seketika menggunakan draf template baku resmi Kemenag"
+            className="w-full sm:w-auto px-4 py-2 border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-xl transition-colors cursor-pointer"
           >
-            <FileText className="w-3.5 h-3.5 text-slate-500" />
-            <span>Gunakan Template Cepat (Instan)</span>
+            Batal
           </button>
 
-          <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
             <button
               type="button"
-              onClick={onClose}
+              onClick={() => handleGenerate(false)}
               disabled={isGenerating}
-              className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-rose-700 disabled:opacity-50 cursor-pointer"
-              title="Batalkan proses pembuatan dokumen"
+              className="w-full sm:w-auto px-4 py-2 border border-pink-200 hover:bg-pink-100/60 text-rose-700 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+              title="Gunakan format standar instan referensi PKKM tanpa koneksi AI"
             >
-              Batal
+              <FileText className="w-3.5 h-3.5" />
+              <span>Template Baku</span>
             </button>
+
             <button
               type="button"
               onClick={() => handleGenerate(true)}
               disabled={isGenerating}
-              className="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-rose-500 via-pink-500 to-purple-600 hover:from-rose-600 hover:to-purple-700 text-white text-xs font-bold rounded-xl shadow-md shadow-pink-200/60 transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer hover:scale-102"
-              title="Mulai membuat naskah dokumen resmi lengkap dengan bantuan kecerdasan buatan Gemini AI"
+              className="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-rose-500 via-pink-500 to-purple-600 hover:from-rose-600 hover:to-purple-700 text-white text-xs font-black rounded-xl shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer hover:scale-102 disabled:opacity-50"
+              title="Proses dokumen dengan kecerdasan buatan Gemini AI dan data riil madrasah"
             >
               <Sparkles className="w-4 h-4 text-amber-200" />
-              <span>Generate dengan Gemini AI</span>
+              <span>Generate Dokumen Otentik</span>
             </button>
           </div>
         </div>

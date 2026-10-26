@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import mammoth from 'mammoth';
 import { MadrasahProfile, PKKMItem } from '../types';
 import { markdownToHtml, downloadAsWordDoc } from '../utils/exportHelpers';
 import { getDocumentOrientation } from '../utils/documentTemplates';
@@ -15,7 +16,8 @@ import {
   FileText,
   Building,
   CheckCircle2,
-  LayoutTemplate
+  LayoutTemplate,
+  UploadCloud
 } from 'lucide-react';
 
 interface DocumentViewerModalProps {
@@ -44,6 +46,8 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({
   const [copied, setCopied] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [orientation, setOrientation] = useState<'portrait' | 'landscape'>('portrait');
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Auto-detect optimal orientation based on item characteristics
   React.useEffect(() => {
@@ -56,6 +60,40 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({
   React.useEffect(() => {
     setContent(initialContent);
   }, [initialContent]);
+
+  const handleInlineFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploading(true);
+    try {
+      const ext = file.name.split('.').pop()?.toLowerCase();
+      if (ext === 'docx') {
+        const arrayBuffer = await file.arrayBuffer();
+        const res = await mammoth.extractRawText({ arrayBuffer });
+        if (res.value.trim()) {
+          setContent(res.value.trim());
+          if (res.value.includes('|') && res.value.split('\n').some(l => (l.match(/\|/g) || []).length >= 6)) {
+            setOrientation('landscape');
+          }
+          setActiveTab('edit');
+        }
+      } else if (ext === 'txt' || ext === 'md' || ext === 'csv') {
+        const text = await file.text();
+        if (text.trim()) {
+          setContent(text.trim());
+          if (text.includes('|') && text.split('\n').some(l => (l.match(/\|/g) || []).length >= 6)) {
+            setOrientation('landscape');
+          }
+          setActiveTab('edit');
+        }
+      }
+    } catch (err) {
+      console.error('File extraction error', err);
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
 
   if (!isOpen || !item) return null;
 
@@ -181,6 +219,25 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({
               </button>
             </div>
 
+            {/* Inline Upload Guru Button */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".docx,.txt,.md,.csv"
+              onChange={handleInlineFileUpload}
+              className="hidden"
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              className="px-2.5 py-1.5 bg-white hover:bg-purple-50 text-purple-700 text-xs font-semibold rounded-xl transition-colors flex items-center gap-1 border border-purple-200 cursor-pointer shadow-2xs"
+              title="Unggah file draft madrasah Anda (.docx / .txt) untuk menggantikan atau mengisi naskah ini"
+            >
+              <UploadCloud className="w-3.5 h-3.5 text-purple-600" />
+              <span className="hidden sm:inline">{isUploading ? 'Mengekstrak...' : 'Unggah File Guru'}</span>
+            </button>
+
             <button
               onClick={handleCopy}
               className="px-2.5 py-1.5 bg-white hover:bg-pink-50 text-slate-700 text-xs font-semibold rounded-xl transition-colors flex items-center gap-1 border border-pink-200/80 cursor-pointer shadow-2xs"
@@ -242,38 +299,62 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({
                 fontFamily: "'Merriweather', 'Times New Roman', serif",
               }}
             >
-              {/* Official Kemenag Letterhead (Kop Surat) */}
-              <div className="text-center pb-3 mb-4 border-b-4 border-double border-slate-900 relative">
-                <div className="flex items-center justify-center gap-4 mb-1">
-                  {/* Kemenag Logo Badge Icon */}
-                  <div className="w-14 h-14 rounded-full bg-emerald-800 text-amber-300 flex items-center justify-center font-bold text-xs border-2 border-amber-400 shadow-sm shrink-0">
-                    <span className="font-sans font-black text-center text-[10px] leading-tight">
-                      IKHLAS<br />BERAMAL
-                    </span>
+              {/* Scoped CSS for Preview Table & Signatures */}
+              <style>{`
+                #printable-area table {
+                  width: 100% !important;
+                  border-collapse: collapse !important;
+                  margin: 10px 0 !important;
+                }
+                #printable-area table:not([border="0"]) th,
+                #printable-area table:not([border="0"]) td {
+                  border: 1px solid #000000 !important;
+                  padding: 5px 6px !important;
+                }
+                #printable-area table:not([border="0"]) th {
+                  background-color: #f1f5f9 !important;
+                  font-weight: bold !important;
+                }
+                #printable-area table[border="0"],
+                #printable-area table[border="0"] td,
+                #printable-area table[border="0"] th {
+                  border: none !important;
+                }
+              `}</style>
+
+              {/* Fallback Kemenag Letterhead (Only if content does not already include official KOP) */}
+              {!content.toUpperCase().includes('KEMENTERIAN AGAMA') && (
+                <div className="text-center pb-3 mb-4 border-b-4 border-double border-slate-900 relative">
+                  <div className="flex items-center justify-center gap-4 mb-1">
+                    <div className="w-14 h-14 rounded-full bg-emerald-800 text-amber-300 flex items-center justify-center font-bold text-xs border-2 border-amber-400 shadow-sm shrink-0">
+                      <span className="font-sans font-black text-center text-[10px] leading-tight">
+                        IKHLAS<br />BERAMAL
+                      </span>
+                    </div>
+                    <div>
+                      <h2 className="text-sm sm:text-base font-bold tracking-wider text-slate-900 font-sans uppercase">
+                        KEMENTERIAN AGAMA REPUBLIK INDONESIA
+                      </h2>
+                      <h3 className="text-xs sm:text-sm font-bold text-slate-800 font-sans uppercase">
+                        KANTOR KEMENTERIAN AGAMA {profile.kabupatenKota.toUpperCase()}
+                      </h3>
+                      <h1 className="text-base sm:text-xl font-black text-emerald-900 font-sans uppercase tracking-tight mt-0.5">
+                        {profile.namaMadrasah.toUpperCase()}
+                      </h1>
+                    </div>
                   </div>
-                  <div>
-                    <h2 className="text-sm sm:text-base font-bold tracking-wider text-slate-900 font-sans uppercase">
-                      KEMENTERIAN AGAMA REPUBLIK INDONESIA
-                    </h2>
-                    <h3 className="text-xs sm:text-sm font-bold text-slate-800 font-sans uppercase">
-                      KANTOR KEMENTERIAN AGAMA {profile.kabupatenKota.toUpperCase()}
-                    </h3>
-                    <h1 className="text-base sm:text-xl font-black text-emerald-900 font-sans uppercase tracking-tight mt-0.5">
-                      {profile.namaMadrasah.toUpperCase()}
-                    </h1>
-                  </div>
+                  <p className="text-[11px] text-slate-600 font-sans italic leading-tight">
+                    {profile.alamat}, Desa {profile.desaKelurahan}, Kec. {profile.kecamatan}, {profile.kabupatenKota} - {profile.provinsi}
+                  </p>
+                  <p className="text-[10px] text-slate-500 font-sans font-mono">
+                    NSM: {profile.nsm} | NPSN: {profile.npsn} | Email: {profile.namaMadrasah.toLowerCase().replace(/\s+/g, '')}@kemenag.go.id
+                  </p>
                 </div>
-                <p className="text-[11px] text-slate-600 font-sans italic leading-tight">
-                  {profile.alamat}, Desa {profile.desaKelurahan}, Kec. {profile.kecamatan}, {profile.kabupatenKota} - {profile.provinsi}
-                </p>
-                <p className="text-[10px] text-slate-500 font-sans font-mono">
-                  NSM: {profile.nsm} | NPSN: {profile.npsn} | Email: {profile.namaMadrasah.toLowerCase().replace(/\s+/g, '')}@kemenag.go.id
-                </p>
-              </div>
+              )}
 
               {/* Document Body */}
               <div
-                className="prose prose-slate max-w-none text-xs sm:text-sm leading-relaxed"
+                className="max-w-none text-xs sm:text-sm leading-relaxed"
                 dangerouslySetInnerHTML={{ __html: htmlContent }}
               />
 

@@ -13,7 +13,8 @@ import {
   HeartHandshake, 
   LayoutList, 
   LayoutGrid,
-  LayoutTemplate
+  LayoutTemplate,
+  UploadCloud
 } from 'lucide-react';
 
 interface ItemListProps {
@@ -21,6 +22,7 @@ interface ItemListProps {
   activeComponent: ComponentId | 'ALL';
   onOpenGenerator: (item: PKKMItem) => void;
   onInstantGenerate: (item: PKKMItem) => void;
+  onOpenUploadItem?: (item: PKKMItem) => void;
   onToggleStatus: (itemId: number) => void;
   onUpdateDriveUrl: (itemId: number, url: string) => void;
 }
@@ -30,6 +32,7 @@ export const ItemList: React.FC<ItemListProps> = ({
   activeComponent,
   onOpenGenerator,
   onInstantGenerate,
+  onOpenUploadItem,
   onToggleStatus,
   onUpdateDriveUrl,
 }) => {
@@ -419,11 +422,22 @@ export const ItemList: React.FC<ItemListProps> = ({
                   <button
                     onClick={() => onInstantGenerate(item)}
                     className="px-3.5 py-2 border border-pink-200 hover:bg-pink-50 text-slate-700 hover:text-rose-700 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
-                    title="Buat dokumen cepat dan instan menggunakan naskah template standar resmi Kemenag"
+                    title="Buat dokumen cepat dan instan menggunakan naskah template standar referensi PKKM"
                   >
                     <FileText className="w-3.5 h-3.5 text-slate-500" />
                     <span>Template</span>
                   </button>
+
+                  {onOpenUploadItem && (
+                    <button
+                      onClick={() => onOpenUploadItem(item)}
+                      className="px-3 py-2 border border-purple-200 hover:bg-purple-50 text-purple-700 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                      title="Unggah file naskah dokumen guru/madrasah (.docx / .txt) untuk bukti fisik ini"
+                    >
+                      <UploadCloud className="w-3.5 h-3.5 text-purple-600" />
+                      <span>Upload</span>
+                    </button>
+                  )}
 
                   <button
                     onClick={() => onOpenGenerator(item)}
@@ -539,22 +553,32 @@ export const ItemList: React.FC<ItemListProps> = ({
                   )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-3 gap-1.5">
                   <button
                     onClick={() => onInstantGenerate(item)}
-                    className="py-2 border border-pink-200 hover:bg-pink-50 text-slate-700 hover:text-rose-700 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1 cursor-pointer shadow-2xs"
-                    title="Buat dokumen cepat seketika menggunakan draf template resmi Kemenag"
+                    className="py-2 border border-pink-200 hover:bg-pink-50 text-slate-700 hover:text-rose-700 text-[11px] font-bold rounded-xl transition-all flex items-center justify-center gap-1 cursor-pointer shadow-2xs"
+                    title="Buat dokumen cepat seketika menggunakan draf template referensi PKKM"
                   >
                     <FileText className="w-3 h-3 text-slate-400" />
                     <span>Template</span>
                   </button>
+                  {onOpenUploadItem && (
+                    <button
+                      onClick={() => onOpenUploadItem(item)}
+                      className="py-2 border border-purple-200 hover:bg-purple-50 text-purple-700 text-[11px] font-bold rounded-xl transition-all flex items-center justify-center gap-1 cursor-pointer shadow-2xs"
+                      title="Unggah file naskah dokumen guru/madrasah (.docx / .txt)"
+                    >
+                      <UploadCloud className="w-3 h-3 text-purple-600" />
+                      <span>Upload</span>
+                    </button>
+                  )}
                   <button
                     onClick={() => onOpenGenerator(item)}
-                    className="py-2 bg-gradient-to-r from-rose-500 via-pink-500 to-purple-600 hover:from-rose-600 hover:to-purple-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center justify-center gap-1 transition-all cursor-pointer hover:scale-102"
+                    className="py-2 bg-gradient-to-r from-rose-500 via-pink-500 to-purple-600 hover:from-rose-600 hover:to-purple-700 text-white text-[11px] font-bold rounded-xl shadow-xs flex items-center justify-center gap-1 transition-all cursor-pointer hover:scale-102"
                     title="Generate naskah dokumen lengkap dengan bantuan Gemini AI"
                   >
                     <Sparkles className="w-3 h-3 text-amber-200" />
-                    <span>Generate AI</span>
+                    <span>AI</span>
                   </button>
                 </div>
               </div>
